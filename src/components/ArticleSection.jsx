@@ -1,5 +1,6 @@
 import { Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
 
 const categories = ["Highlight", "Adventure", "Culture", "Food", "Tips"]
 
@@ -130,19 +131,23 @@ export default function ArticleSection() {
       </div>
 
       {/* Mobile: search + select */}
-      <div className="md:hidden flex flex-col gap-3 mb-6">
+      <div className="md:hidden w-full flex flex-col gap-3 mb-6">
         <div className="relative">
           <Input placeholder="Search" className="pr-10 rounded-full" />
           <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
         </div>
         <div>
           <p className="text-xs text-gray-400 mb-1.5">Category</p>
-          <select className="w-full h-10 rounded-md border border-gray-200 bg-white px-3 text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-gray-300 appearance-none cursor-pointer"
-            style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")", backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center' }}>
-            {categories.map(cat => (
-              <option key={cat}>{cat}</option>
-            ))}
-          </select>
+          <Select defaultValue="Highlight">
+            <SelectTrigger className="w-full py-3 rounded-sm text-muted-foreground">
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map(cat => (
+                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
