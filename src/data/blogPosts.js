@@ -5,7 +5,7 @@ const blogPosts = [
     category: "Adventure",
     title: "10 Hidden Gems in Southeast Asia You Must Visit in 2025",
     description: "From the misty highlands of Northern Vietnam to the untouched beaches of the Philippines, Southeast Asia hides countless treasures far from the tourist crowds.",
-    author: "Thompson P.",
+    author: "Thanakrit W.",
     date: "11 September 2024",
     likes: 412,
     content:
@@ -17,7 +17,7 @@ const blogPosts = [
     category: "Culture",
     title: "The Ultimate Guide to Solo Travel in Japan: Culture, Etiquette & Must-Sees",
     description: "Japan is one of the safest and most rewarding destinations for solo travelers. Discover how to navigate its unique culture, transportation, and hidden local spots.",
-    author: "Thompson P.",
+    author: "Thanakrit W.",
     date: "15 September 2024",
     likes: 538,
     content:
@@ -29,7 +29,7 @@ const blogPosts = [
     category: "Culture",
     title: "Exploring Ancient Rome: Walking Through 2,000 Years of History",
     description: "Every cobblestone in Rome tells a story. This guide takes you through the Colosseum, the Forum, and the hidden neighborhoods that most tourists never see.",
-    author: "Thompson P.",
+    author: "Thanakrit W.",
     date: "20 September 2024",
     likes: 297,
     content:
@@ -41,7 +41,7 @@ const blogPosts = [
     category: "Food",
     title: "Street Food Adventures: The Best Night Markets in Bangkok",
     description: "Bangkok's night markets are a sensory overload in the best possible way. Pad thai, mango sticky rice, boat noodles — here's where to find the most authentic bites.",
-    author: "Thompson P.",
+    author: "Thanakrit W.",
     date: "25 September 2024",
     likes: 384,
     content:
@@ -53,7 +53,7 @@ const blogPosts = [
     category: "Adventure",
     title: "Trekking Patagonia: What You Need to Know Before You Go",
     description: "The W Circuit and the full O Circuit through Torres del Paine are bucket-list treks. Here's everything you need to plan the adventure of a lifetime in Patagonia.",
-    author: "Thompson P.",
+    author: "Thanakrit W.",
     date: "1 October 2024",
     likes: 461,
     content:
@@ -65,7 +65,7 @@ const blogPosts = [
     category: "Tips",
     title: "Santorini on a Budget: How to Experience Greece Without Overspending",
     description: "Santorini has a reputation for being expensive, but with the right tips you can enjoy white-washed villages, volcanic beaches, and stunning sunsets without breaking the bank.",
-    author: "Thompson P.",
+    author: "Thanakrit W.",
     date: "5 October 2024",
     likes: 329,
     content:
