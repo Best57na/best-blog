@@ -1,7 +1,7 @@
 import { Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 
-const categories = ['Highlight', 'Adventure', 'Culture', 'Food', 'Tips']
+const categories = ["Highlight", "Adventure", "Culture", "Food", "Tips"]
 
 const articles = [
   {
@@ -111,14 +111,12 @@ export default function ArticleSection() {
 
       {/* Desktop: tabs + search */}
       <div className="hidden md:flex items-center justify-between mb-6 bg-white rounded-2xl px-4 py-2.5 border border-gray-100">
-        <div className="flex items-center gap-1">
+        <div className="hidden md:flex space-x-2">
           {categories.map((cat, i) => (
             <button
               key={cat}
-              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
-                i === 0
-                  ? 'bg-gray-100 text-gray-900'
-                  : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+              className={`px-4 py-3 transition-colors rounded-sm text-sm text-muted-foreground font-medium cursor-pointer ${
+                i === 0 ? 'bg-[#DAD6D1]' : ''
               }`}
             >
               {cat}
