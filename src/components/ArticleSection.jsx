@@ -73,32 +73,32 @@ const articles = [
   },
 ]
 
-function ArticleCard({ article }) {
+function BlogCard({ image, category, title, description, author, date }) {
   return (
     <div className="bg-white rounded-2xl overflow-hidden border border-gray-100">
       <img
-        src={article.image}
-        alt={article.title}
+        src={image}
+        alt={title}
         className="w-full h-52 object-cover"
       />
       <div className="p-4">
         <span className="inline-block px-2.5 py-0.5 text-xs font-medium rounded-full mb-2"
           style={{ backgroundColor: '#D7F2E9', color: '#12B279' }}>
-          {article.category}
+          {category}
         </span>
         <h3 className="font-bold text-gray-900 text-sm leading-snug mb-2 line-clamp-2">
-          {article.title}
+          {title}
         </h3>
         <p className="text-xs text-gray-400 leading-relaxed mb-3 line-clamp-2">
-          {article.description}
+          {description}
         </p>
         <div className="flex items-center gap-2 text-xs text-gray-400">
           <div className="w-5 h-5 rounded-full bg-gray-200 flex-shrink-0 overflow-hidden">
             <div className="w-full h-full flex items-center justify-center text-[9px] font-semibold text-gray-600">T</div>
           </div>
-          <span className="text-gray-600 text-xs font-medium">{article.author}</span>
+          <span className="text-gray-600 text-xs font-medium">{author}</span>
           <span className="text-gray-300">|</span>
-          <span>{article.date}</span>
+          <span>{date}</span>
         </div>
       </div>
     </div>
@@ -154,7 +154,15 @@ export default function ArticleSection() {
       {/* Article grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {articles.map(article => (
-          <ArticleCard key={article.id} article={article} />
+          <BlogCard
+            key={article.id}
+            image={article.image}
+            category={article.category}
+            title={article.title}
+            description={article.description}
+            author={article.author}
+            date={article.date}
+          />
         ))}
       </div>
 
