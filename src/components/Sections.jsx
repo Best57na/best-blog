@@ -1,4 +1,4 @@
-import manWithCat from '../assets/Man with black cat.jpg'
+import myPic from '../assets/My pic.jpg'
 import logo from '../assets/logo.png'
 import { Mail, X, Globe } from 'lucide-react'
 
@@ -30,32 +30,32 @@ export function HeroSection() {
 
         <div className="flex-1 flex flex-col items-center text-center">
           <h1 className="text-4xl font-bold text-gray-900 leading-tight m-0">
-            Stay Informed, Stay Inspired
+            Explore the World, One Story at a Time
           </h1>
           <p className="text-xs text-gray-400 mt-5 leading-relaxed max-w-xs md:max-w-48">
-            Discover a World of Knowledge at Your Fingertips. Your Daily Dose of Inspiration and Information.
+            Your guide to hidden destinations, travel tips, and unforgettable adventures around the globe.
           </p>
         </div>
 
         <div className="flex-1 w-full">
           <img
-            src={manWithCat}
-            alt="Man with black cat"
-            className="w-full h-64 md:h-80 object-cover rounded-3xl"
+            src={myPic}
+            alt="My pic"
+            className="w-full h-64 md:h-80 object-cover object-top rounded-3xl"
           />
         </div>
 
         <div className="flex-1 text-left w-full">
           <p className="text-xs text-gray-400 m-0">- Author</p>
-          <h2 className="text-xl font-bold text-gray-900 mt-1 mb-3">Thompson P.</h2>
+          <h2 className="text-xl font-bold text-gray-900 mt-1 mb-3">Thanakrit W.</h2>
           <p className="text-sm text-gray-500 leading-relaxed m-0">
-            I am a pet enthusiast and freelance writer who specializes in animal behavior and
-            care. With a deep love for cats, I enjoy sharing insights on feline companionship
-            and wellness.
+            I am a passionate traveler and writer who has explored over 30 countries across
+            Asia, Europe, and South America. I love uncovering hidden gems and sharing
+            honest, practical travel stories.
           </p>
           <p className="text-sm text-gray-500 leading-relaxed mt-4">
-            When i'm not writing, I spends time volunteering at my local animal shelter,
-            helping cats find loving homes.
+            When I'm not on the road, I spend my time planning the next adventure and
+            helping fellow travelers make the most of every journey.
           </p>
         </div>
 
