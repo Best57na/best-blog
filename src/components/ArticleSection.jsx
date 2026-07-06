@@ -1,10 +1,20 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Search } from 'lucide-react'
+import axios from 'axios'
 import { Input } from '@/components/ui/input'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
-import blogPosts from '@/data/blogPosts'
 
 const categories = ["Highlight", "Adventure", "Culture", "Food", "Tips"]
+
+const API_URL = "https://blog-post-project-api.vercel.app/posts"
+
+const formatDate = (isoDate) => {
+  return new Date(isoDate).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  })
+}
 
 function BlogCard({ image, category, title, description, author, date }) {
   return (
@@ -40,6 +50,19 @@ function BlogCard({ image, category, title, description, author, date }) {
 
 export default function ArticleSection() {
   const [selectedCategory, setSelectedCategory] = useState("Highlight")
+  const [posts, setPosts] = useState([])
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      const params = { page: 1, limit: 6 }
+      if (selectedCategory !== "Highlight") {
+        params.category = selectedCategory
+      }
+      const response = await axios.get(API_URL, { params })
+      setPosts(response.data.posts)
+    }
+    fetchPosts()
+  }, [selectedCategory])
 
   return (
     <div className="px-4 md:px-6 py-4">
@@ -92,7 +115,7 @@ export default function ArticleSection() {
 
       {/* Article grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {blogPosts.map(article => (
+        {posts.map(article => (
           <BlogCard
             key={article.id}
             image={article.image}
@@ -100,7 +123,7 @@ export default function ArticleSection() {
             title={article.title}
             description={article.description}
             author={article.author}
-            date={article.date}
+            date={formatDate(article.date)}
           />
         ))}
       </div>
