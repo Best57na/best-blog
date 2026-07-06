@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect, useRef } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { Search } from 'lucide-react'
 import axios from 'axios'
 import { Input } from '@/components/ui/input'
@@ -15,6 +15,72 @@ const formatDate = (isoDate) => {
     month: "long",
     year: "numeric",
   })
+}
+
+function SearchBox({ className = '' }) {
+  const [query, setQuery] = useState('')
+  const [results, setResults] = useState([])
+  const [showDropdown, setShowDropdown] = useState(false)
+  const containerRef = useRef(null)
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (!query.trim()) {
+      setResults([])
+      setShowDropdown(false)
+      return
+    }
+    const timer = setTimeout(async () => {
+      const response = await axios.get(API_URL, { params: { keyword: query, limit: 10 } })
+      setResults(response.data.posts || [])
+      setShowDropdown(true)
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [query])
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setShowDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const handleSelect = (id) => {
+    setShowDropdown(false)
+    setQuery('')
+    navigate(`/post/${id}`)
+  }
+
+  return (
+    <div ref={containerRef} className={`relative ${className}`}>
+      <Input
+        placeholder="Search"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        onFocus={() => results.length > 0 && setShowDropdown(true)}
+        className="pr-8 rounded-full"
+      />
+      <Search size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+
+      {showDropdown && results.length > 0 && (
+        <ul className="absolute top-full mt-2 left-0 right-0 bg-white border border-gray-100 rounded-2xl shadow-lg z-50 overflow-hidden">
+          {results.map((post) => (
+            <li key={post.id}>
+              <button
+                onMouseDown={() => handleSelect(post.id)}
+                className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+              >
+                {post.title}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
 }
 
 function BlogCard({ id, image, category, title, description, author, date }) {
@@ -75,7 +141,7 @@ export default function ArticleSection() {
 
       {/* Desktop: tabs + search */}
       <div className="hidden md:flex items-center justify-between mb-6 bg-white rounded-2xl px-4 py-2.5 border border-gray-100">
-        <div className="hidden md:flex space-x-2">
+        <div className="flex space-x-2">
           {categories.map((cat) => (
             <button
               key={cat}
@@ -91,18 +157,12 @@ export default function ArticleSection() {
             </button>
           ))}
         </div>
-        <div className="relative">
-          <Input placeholder="Search" className="w-48 pr-8 rounded-full" />
-          <Search size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-        </div>
+        <SearchBox className="w-56" />
       </div>
 
       {/* Mobile: search + select */}
       <div className="md:hidden w-full flex flex-col gap-3 mb-6">
-        <div className="relative">
-          <Input placeholder="Search" className="pr-10 rounded-full" />
-          <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-        </div>
+        <SearchBox className="w-full" />
         <div>
           <p className="text-xs text-gray-400 mb-1.5">Category</p>
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
