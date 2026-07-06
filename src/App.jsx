@@ -1,8 +1,12 @@
-import { NavBar, HeroSection, Footer } from './components/Sections'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { NavBar, Footer } from './components/Sections'
+import { HeroSection } from './components/Sections'
 import ArticleSection from './components/ArticleSection'
+import PostPage from './pages/PostPage'
+import NotFoundPage from './pages/NotFoundPage'
 import './App.css'
 
-function App() {
+function HomePage() {
   return (
     <div>
       <NavBar />
@@ -10,6 +14,18 @@ function App() {
       <ArticleSection />
       <Footer />
     </div>
+  )
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/post/:postId" element={<PostPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 
