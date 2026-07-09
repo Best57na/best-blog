@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { Search } from 'lucide-react'
 import axios from 'axios'
 import { Input } from '@/components/ui/input'
@@ -16,22 +17,26 @@ const formatDate = (isoDate) => {
   })
 }
 
-function BlogCard({ image, category, title, description, author, date }) {
+function BlogCard({ id, image, category, title, description, author, date }) {
   return (
     <div className="bg-white rounded-2xl overflow-hidden border border-gray-100">
-      <img
-        src={image}
-        alt={title}
-        className="w-full h-52 object-cover"
-      />
+      <Link to={`/post/${id}`}>
+        <img
+          src={image}
+          alt={title}
+          className="w-full h-52 object-cover hover:opacity-90 transition-opacity"
+        />
+      </Link>
       <div className="p-4">
         <span className="inline-block px-2.5 py-0.5 text-xs font-medium rounded-full mb-2"
           style={{ backgroundColor: '#D7F2E9', color: '#12B279' }}>
           {category}
         </span>
-        <h3 className="font-bold text-gray-900 text-sm leading-snug mb-2 line-clamp-2">
-          {title}
-        </h3>
+        <Link to={`/post/${id}`}>
+          <h3 className="font-bold text-gray-900 text-sm leading-snug mb-2 line-clamp-2 hover:underline">
+            {title}
+          </h3>
+        </Link>
         <p className="text-xs text-gray-400 leading-relaxed mb-3 line-clamp-2">
           {description}
         </p>
@@ -118,6 +123,7 @@ export default function ArticleSection() {
         {posts.map(article => (
           <BlogCard
             key={article.id}
+            id={article.id}
             image={article.image}
             category={article.category}
             title={article.title}
