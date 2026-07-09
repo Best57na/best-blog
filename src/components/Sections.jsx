@@ -1,18 +1,27 @@
 import myPic from '../assets/My pic.jpg'
 import logo from '../assets/logo.png'
 import { Mail, X, Globe } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 export function NavBar() {
   return (
     <nav className="flex items-center justify-between px-4 md:px-8 py-4 border-b border-gray-200 bg-white">
-      <img src={logo} alt="logo" className="h-8" />
+      <Link to="/">
+        <img src={logo} alt="logo" className="h-8" />
+      </Link>
       <div className="hidden md:flex items-center gap-3">
-        <button className="px-5 py-2 rounded-full border border-gray-300 text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-50">
+        <Link
+          to="/login"
+          className="px-5 py-2 rounded-full border border-gray-300 text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-50"
+        >
           Log in
-        </button>
-        <button className="px-5 py-2 rounded-full bg-gray-900 text-sm font-medium text-white cursor-pointer hover:bg-gray-700">
+        </Link>
+        <Link
+          to="/signup"
+          className="px-5 py-2 rounded-full bg-gray-900 text-sm font-medium text-white cursor-pointer hover:bg-gray-700"
+        >
           Sign up
-        </button>
+        </Link>
       </div>
       <button className="md:hidden p-2 text-gray-700 cursor-pointer">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
