@@ -2,21 +2,63 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import logo from '../assets/logo.png'
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+function validate(form) {
+  const errors = {}
+  if (!form.name.trim()) errors.name = 'Name is required'
+  if (!form.username.trim()) errors.username = 'Username is required'
+  if (!form.email.trim()) {
+    errors.email = 'Email is required'
+  } else if (!emailRegex.test(form.email)) {
+    errors.email = 'Email must be a valid email'
+  }
+  if (!form.password) {
+    errors.password = 'Password is required'
+  } else if (form.password.length < 8) {
+    errors.password = 'Password must be at least 8 characters'
+  }
+  return errors
+}
+
 export default function SignUpPage() {
   const navigate = useNavigate()
   const [form, setForm] = useState({ name: '', username: '', email: '', password: '' })
+  const [errors, setErrors] = useState({})
   const [success, setSuccess] = useState(false)
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value })
+    const { name, value } = e.target
+    setForm((prev) => ({ ...prev, [name]: value }))
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }))
   }
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    if (form.name && form.username && form.email && form.password) {
-      setSuccess(true)
+    const validationErrors = validate(form)
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors)
+      return
     }
+
+    // Check duplicate email in localStorage
+    const registered = JSON.parse(localStorage.getItem('registeredEmails') || '[]')
+    if (registered.includes(form.email.toLowerCase())) {
+      setErrors({ email: 'Email is already taken. Please try another email.' })
+      return
+    }
+
+    // Save email and show success
+    localStorage.setItem('registeredEmails', JSON.stringify([...registered, form.email.toLowerCase()]))
+    setSuccess(true)
   }
+
+  const inputClass = (field) =>
+    `w-full bg-white border rounded-xl px-4 py-3 text-sm text-gray-700 placeholder-gray-300 focus:outline-none focus:ring-2 transition-colors ${
+      errors[field]
+        ? 'border-red-400 focus:ring-red-100'
+        : 'border-transparent focus:ring-gray-200'
+    }`
 
   return (
     <div className="min-h-screen bg-stone-100">
@@ -26,22 +68,15 @@ export default function SignUpPage() {
           <img src={logo} alt="logo" className="h-8" />
         </Link>
         <div className="flex items-center gap-3">
-          <Link
-            to="/login"
-            className="px-5 py-2 rounded-full border border-gray-300 text-sm font-medium text-gray-700 hover:bg-white transition-colors"
-          >
+          <Link to="/login" className="px-5 py-2 rounded-full border border-gray-300 text-sm font-medium text-gray-700 hover:bg-white transition-colors">
             Log in
           </Link>
-          <Link
-            to="/signup"
-            className="px-5 py-2 rounded-full bg-gray-900 text-sm font-medium text-white hover:bg-gray-700 transition-colors"
-          >
+          <Link to="/signup" className="px-5 py-2 rounded-full bg-gray-900 text-sm font-medium text-white hover:bg-gray-700 transition-colors">
             Sign up
           </Link>
         </div>
       </nav>
 
-      {/* Content */}
       <div className="flex items-center justify-center px-4 py-10">
         {success ? (
           /* Success state */
@@ -64,7 +99,7 @@ export default function SignUpPage() {
           <div className="bg-stone-200 rounded-3xl w-full max-w-md px-10 py-10">
             <h1 className="text-3xl font-bold text-gray-900 text-center mb-8">Sign up</h1>
 
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Name</label>
                 <input
@@ -73,9 +108,9 @@ export default function SignUpPage() {
                   value={form.name}
                   onChange={handleChange}
                   placeholder="Full name"
-                  required
-                  className="w-full bg-white border-0 rounded-xl px-4 py-3 text-sm text-gray-700 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-200"
+                  className={inputClass('name')}
                 />
+                {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name}</p>}
               </div>
 
               <div>
@@ -86,9 +121,9 @@ export default function SignUpPage() {
                   value={form.username}
                   onChange={handleChange}
                   placeholder="Username"
-                  required
-                  className="w-full bg-white border-0 rounded-xl px-4 py-3 text-sm text-gray-700 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-200"
+                  className={inputClass('username')}
                 />
+                {errors.username && <p className="text-xs text-red-500 mt-1">{errors.username}</p>}
               </div>
 
               <div>
@@ -99,9 +134,9 @@ export default function SignUpPage() {
                   value={form.email}
                   onChange={handleChange}
                   placeholder="Email"
-                  required
-                  className="w-full bg-white border-0 rounded-xl px-4 py-3 text-sm text-gray-700 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-200"
+                  className={inputClass('email')}
                 />
+                {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
               </div>
 
               <div>
@@ -112,9 +147,9 @@ export default function SignUpPage() {
                   value={form.password}
                   onChange={handleChange}
                   placeholder="Password"
-                  required
-                  className="w-full bg-white border-0 rounded-xl px-4 py-3 text-sm text-gray-700 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-200"
+                  className={inputClass('password')}
                 />
+                {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password}</p>}
               </div>
 
               <button
