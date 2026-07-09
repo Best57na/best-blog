@@ -1,9 +1,20 @@
+import { useState, useEffect } from 'react'
 import { Search } from 'lucide-react'
+import axios from 'axios'
 import { Input } from '@/components/ui/input'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
-import blogPosts from '@/data/blogPosts'
 
 const categories = ["Highlight", "Adventure", "Culture", "Food", "Tips"]
+
+const API_URL = "https://blog-post-project-api.vercel.app/posts"
+
+const formatDate = (isoDate) => {
+  return new Date(isoDate).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  })
+}
 
 function BlogCard({ image, category, title, description, author, date }) {
   return (
@@ -38,6 +49,21 @@ function BlogCard({ image, category, title, description, author, date }) {
 }
 
 export default function ArticleSection() {
+  const [selectedCategory, setSelectedCategory] = useState("Highlight")
+  const [posts, setPosts] = useState([])
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      const params = { page: 1, limit: 6 }
+      if (selectedCategory !== "Highlight") {
+        params.category = selectedCategory
+      }
+      const response = await axios.get(API_URL, { params })
+      setPosts(response.data.posts)
+    }
+    fetchPosts()
+  }, [selectedCategory])
+
   return (
     <div className="px-4 md:px-6 py-4">
       <h2 className="text-2xl font-bold text-gray-900 mb-4">Latest articles</h2>
@@ -45,11 +71,15 @@ export default function ArticleSection() {
       {/* Desktop: tabs + search */}
       <div className="hidden md:flex items-center justify-between mb-6 bg-white rounded-2xl px-4 py-2.5 border border-gray-100">
         <div className="hidden md:flex space-x-2">
-          {categories.map((cat, i) => (
+          {categories.map((cat) => (
             <button
               key={cat}
-              className={`px-4 py-3 transition-colors rounded-sm text-sm text-muted-foreground font-medium cursor-pointer ${
-                i === 0 ? 'bg-[#DAD6D1]' : ''
+              disabled={selectedCategory === cat}
+              onClick={() => setSelectedCategory(cat)}
+              className={`px-4 py-3 transition-colors rounded-sm text-sm text-muted-foreground font-medium ${
+                selectedCategory === cat
+                  ? 'bg-[#DAD6D1] cursor-not-allowed'
+                  : 'cursor-pointer hover:bg-[#EFEEEB]'
               }`}
             >
               {cat}
@@ -70,7 +100,7 @@ export default function ArticleSection() {
         </div>
         <div>
           <p className="text-xs text-gray-400 mb-1.5">Category</p>
-          <Select defaultValue="Highlight">
+          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
             <SelectTrigger className="w-full py-3 rounded-sm text-muted-foreground">
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
@@ -85,7 +115,7 @@ export default function ArticleSection() {
 
       {/* Article grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {blogPosts.map(article => (
+        {posts.map(article => (
           <BlogCard
             key={article.id}
             image={article.image}
@@ -93,7 +123,7 @@ export default function ArticleSection() {
             title={article.title}
             description={article.description}
             author={article.author}
-            date={article.date}
+            date={formatDate(article.date)}
           />
         ))}
       </div>
