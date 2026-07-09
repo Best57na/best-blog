@@ -40,7 +40,7 @@ export function HeroSection() {
         <div className="flex-1 w-full">
           <img
             src={myPic}
-            alt="My pic"
+            alt="Thanakrit W."
             className="w-full h-64 md:h-80 object-cover object-top rounded-3xl"
           />
         </div>
