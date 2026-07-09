@@ -5,6 +5,7 @@ import ReactMarkdown from 'react-markdown'
 import { NavBar, Footer } from '../components/Sections'
 import { SmilePlus, Copy, X } from 'lucide-react'
 import { toast } from 'sonner'
+import { toast } from 'sonner'
 
 const formatDate = (isoDate) =>
   new Date(isoDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -87,6 +88,7 @@ export default function PostPage() {
   const handleCopy = () => {
     navigator.clipboard.writeText(window.location.href)
     toast.success('Copied!', { description: 'This article has been copied to your clipboard.' })
+    toast.success('Copied!', { description: 'This article has been copied to your clipboard.' })
   }
 
   if (loading) {
@@ -165,9 +167,10 @@ export default function PostPage() {
             >
               <Copy size={15} />
               Copy
+              Copy
             </button>
             <a
-              href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(pageUrl)}`}
+              href={`https://www.facebook.com/share.php?u=${encodeURIComponent(pageUrl)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 bg-white text-gray-600 hover:bg-gray-50 transition-colors"
@@ -183,7 +186,7 @@ export default function PostPage() {
               <LinkedInIcon />
             </a>
             <a
-              href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(pageUrl)}`}
+              href={`https://www.twitter.com/share?&url=${encodeURIComponent(pageUrl)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 bg-white text-gray-600 hover:bg-gray-50 transition-colors"
