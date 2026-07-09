@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { Toaster } from 'sonner'
 import { NavBar, Footer } from './components/Sections'
 import { HeroSection } from './components/Sections'
 import ArticleSection from './components/ArticleSection'
@@ -25,6 +26,7 @@ function App() {
         <Route path="/post/:postId" element={<PostPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
+      <Toaster position="bottom-right" richColors />
     </BrowserRouter>
   )
 }
