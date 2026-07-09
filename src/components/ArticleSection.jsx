@@ -65,6 +65,12 @@ function SearchBox({ className = '' }) {
       />
       <Search size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
 
+      {showDropdown && results.length === 0 && (
+        <div className="absolute top-full mt-2 left-0 right-0 bg-white border border-gray-100 rounded-2xl shadow-lg z-50 px-4 py-3 text-sm text-gray-400 text-center">
+          ไม่พบบทความที่ค้นหา
+        </div>
+      )}
+
       {showDropdown && results.length > 0 && (
         <ul className="absolute top-full mt-2 left-0 right-0 bg-white border border-gray-100 rounded-2xl shadow-lg z-50 overflow-hidden">
           {results.map((post) => (

@@ -5,7 +5,6 @@ import ReactMarkdown from 'react-markdown'
 import { NavBar, Footer } from '../components/Sections'
 import { SmilePlus, Copy, X } from 'lucide-react'
 import { toast } from 'sonner'
-import { toast } from 'sonner'
 
 const formatDate = (isoDate) =>
   new Date(isoDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -88,7 +87,6 @@ export default function PostPage() {
   const handleCopy = () => {
     navigator.clipboard.writeText(window.location.href)
     toast.success('Copied!', { description: 'This article has been copied to your clipboard.' })
-    toast.success('Copied!', { description: 'This article has been copied to your clipboard.' })
   }
 
   if (loading) {
@@ -166,7 +164,6 @@ export default function PostPage() {
               className="flex items-center gap-2 px-4 py-2 rounded-full border border-gray-300 bg-white text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-50 transition-colors"
             >
               <Copy size={15} />
-              Copy
               Copy
             </button>
             <a
