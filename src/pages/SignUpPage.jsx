@@ -48,7 +48,10 @@ export default function SignUpPage() {
       return
     }
 
-    // Save email and show success
+    // Save credentials and show success
+    const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]')
+    users.push({ email: form.email.toLowerCase(), password: form.password, name: form.name, username: form.username })
+    localStorage.setItem('registeredUsers', JSON.stringify(users))
     localStorage.setItem('registeredEmails', JSON.stringify([...registered, form.email.toLowerCase()]))
     setSuccess(true)
   }

@@ -1,63 +1,124 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
 import logo from '../assets/logo.png'
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
 export default function LoginPage() {
+  const navigate = useNavigate()
   const [form, setForm] = useState({ email: '', password: '' })
+  const [errors, setErrors] = useState({})
+  const [loginFailed, setLoginFailed] = useState(false)
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value })
+    const { name, value } = e.target
+    setForm((prev) => ({ ...prev, [name]: value }))
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }))
+    if (loginFailed) setLoginFailed(false)
   }
 
+  const handleSubmit = (e) => {
+    e.preventDefault()
+
+    const newErrors = {}
+    if (!form.email.trim()) newErrors.email = 'Email is required'
+    else if (!emailRegex.test(form.email)) newErrors.email = 'Email must be a valid email'
+    if (!form.password) newErrors.password = 'Password is required'
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors)
+      return
+    }
+
+    // Check credentials from localStorage
+    const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]')
+    const matched = users.find(
+      (u) => u.email === form.email.toLowerCase() && u.password === form.password
+    )
+
+    if (!matched) {
+      setLoginFailed(true)
+      toast.error('Your password is incorrect or this email doesn\'t exist', {
+        description: 'Please try another password or email',
+      })
+      return
+    }
+
+    // Login success — navigate to home
+    navigate('/')
+  }
+
+  const inputClass = (field) =>
+    `w-full bg-white border rounded-xl px-4 py-3 text-sm text-gray-700 placeholder-gray-300 focus:outline-none focus:ring-2 transition-colors ${
+      errors[field] || loginFailed
+        ? 'border-red-400 focus:ring-red-100'
+        : 'border-transparent focus:ring-gray-200'
+    }`
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-stone-50 px-4 py-10">
-      <Link to="/" className="mb-8">
-        <img src={logo} alt="logo" className="h-8" />
-      </Link>
-
-      <div className="bg-white rounded-3xl border border-gray-100 shadow-sm w-full max-w-sm px-8 py-10">
-        <h1 className="text-2xl font-bold text-gray-900 mb-1">Welcome back</h1>
-        <p className="text-sm text-gray-400 mb-8">Log in to your account to continue.</p>
-
-        <div className="flex flex-col gap-4">
-          <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1.5">Email</label>
-            <input
-              type="email"
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              placeholder="you@example.com"
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-700 placeholder-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-300"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1.5">Password</label>
-            <input
-              type="password"
-              name="password"
-              value={form.password}
-              onChange={handleChange}
-              placeholder="••••••••"
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-700 placeholder-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-300"
-            />
-          </div>
-
-          <button
-            type="button"
-            className="w-full mt-2 py-3 bg-gray-900 text-white text-sm font-medium rounded-full cursor-pointer hover:bg-gray-700 transition-colors"
-          >
+    <div className="min-h-screen bg-stone-100">
+      {/* NavBar */}
+      <nav className="flex items-center justify-between px-4 md:px-8 py-4 bg-stone-100">
+        <Link to="/">
+          <img src={logo} alt="logo" className="h-8" />
+        </Link>
+        <div className="flex items-center gap-3">
+          <Link to="/login" className="px-5 py-2 rounded-full border border-gray-300 text-sm font-medium text-gray-700 hover:bg-white transition-colors">
             Log in
-          </button>
-        </div>
-
-        <p className="text-sm text-gray-400 text-center mt-6">
-          Don&apos;t have an account?{' '}
-          <Link to="/signup" className="text-gray-900 font-medium underline underline-offset-2">
+          </Link>
+          <Link to="/signup" className="px-5 py-2 rounded-full bg-gray-900 text-sm font-medium text-white hover:bg-gray-700 transition-colors">
             Sign up
           </Link>
-        </p>
+        </div>
+      </nav>
+
+      <div className="flex items-center justify-center px-4 py-10">
+        <div className="bg-stone-200 rounded-3xl w-full max-w-md px-10 py-10">
+          <h1 className="text-3xl font-bold text-gray-900 text-center mb-8">Log in</h1>
+
+          <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+              <input
+                type="email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                placeholder="Email"
+                className={inputClass('email')}
+              />
+              {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
+              <input
+                type="password"
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+                placeholder="Password"
+                className={inputClass('password')}
+              />
+              {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password}</p>}
+            </div>
+
+            <button
+              type="submit"
+              className="mt-2 py-3 bg-gray-900 text-white text-sm font-medium rounded-full cursor-pointer hover:bg-gray-700 transition-colors"
+            >
+              Log in
+            </button>
+          </form>
+
+          <p className="text-sm text-gray-500 text-center mt-6">
+            Don&apos;t have any account?{' '}
+            <Link to="/signup" className="text-gray-900 font-medium underline underline-offset-2">
+              Sign up
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   )
