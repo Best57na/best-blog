@@ -128,18 +128,43 @@ function BlogCard({ id, image, category, title, description, author, date }) {
 export default function ArticleSection() {
   const [selectedCategory, setSelectedCategory] = useState("Highlight")
   const [posts, setPosts] = useState([])
+  const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
+    let cancelled = false
     const fetchPosts = async () => {
-      const params = { page: 1, limit: 6 }
-      if (selectedCategory !== "Highlight") {
-        params.category = selectedCategory
+      setIsLoading(true)
+      try {
+        const params = { page, limit: 6 }
+        if (selectedCategory !== "Highlight") params.category = selectedCategory
+        const response = await axios.get(API_URL, { params })
+        if (!cancelled) {
+          setPosts((prev) => page === 1 ? response.data.posts : [...prev, ...response.data.posts])
+          setHasMore(response.data.currentPage < response.data.totalPages)
+        }
+      } catch (error) {
+        console.error("Error fetching posts:", error)
+      } finally {
+        if (!cancelled) setIsLoading(false)
       }
-      const response = await axios.get(API_URL, { params })
-      setPosts(response.data.posts)
     }
     fetchPosts()
-  }, [selectedCategory])
+    return () => { cancelled = true }
+  }, [page, selectedCategory])
+
+  const handleCategoryChange = (cat) => {
+    if (cat === selectedCategory) return
+    setPosts([])
+    setHasMore(true)
+    setPage(1)
+    setSelectedCategory(cat)
+  }
+
+  const handleLoadMore = () => {
+    setPage((prev) => prev + 1)
+  }
 
   return (
     <div className="px-4 md:px-6 py-4">
@@ -152,7 +177,7 @@ export default function ArticleSection() {
             <button
               key={cat}
               disabled={selectedCategory === cat}
-              onClick={() => setSelectedCategory(cat)}
+              onClick={() => handleCategoryChange(cat)}
               className={`px-4 py-3 transition-colors rounded-sm text-sm text-muted-foreground font-medium ${
                 selectedCategory === cat
                   ? 'bg-[#DAD6D1] cursor-not-allowed'
@@ -171,7 +196,7 @@ export default function ArticleSection() {
         <SearchBox className="w-full" />
         <div>
           <p className="text-xs text-gray-400 mb-1.5">Category</p>
-          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+          <Select value={selectedCategory} onValueChange={handleCategoryChange}>
             <SelectTrigger className="w-full py-3 rounded-sm text-muted-foreground">
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
@@ -200,12 +225,25 @@ export default function ArticleSection() {
         ))}
       </div>
 
+      {/* Loading spinner */}
+      {isLoading && (
+        <div className="flex flex-col items-center justify-center py-12 gap-3">
+          <div className="w-10 h-10 border-2 border-gray-200 border-t-gray-800 rounded-full animate-spin" />
+          <span className="text-sm text-gray-500">Loading...</span>
+        </div>
+      )}
+
       {/* View more */}
-      <div className="text-center mt-8 mb-4">
-        <button className="text-sm text-gray-500 underline underline-offset-4 cursor-pointer hover:text-gray-900 transition-colors">
-          View more
-        </button>
-      </div>
+      {hasMore && !isLoading && (
+        <div className="text-center mt-8 mb-4">
+          <button
+            onClick={handleLoadMore}
+            className="text-sm text-gray-500 underline underline-offset-4 cursor-pointer hover:text-gray-900 transition-colors"
+          >
+            View more
+          </button>
+        </div>
+      )}
     </div>
   )
 }
