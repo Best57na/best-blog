@@ -5,6 +5,7 @@ import ReactMarkdown from 'react-markdown'
 import { NavBar, Footer } from '../components/Sections'
 import { SmilePlus, Copy, X } from 'lucide-react'
 import { toast } from 'sonner'
+import { Link } from 'react-router-dom'
 
 const formatDate = (isoDate) =>
   new Date(isoDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -44,12 +45,15 @@ function AuthDialog({ onClose }) {
         <h2 className="text-2xl font-bold text-gray-900 mb-6 leading-snug">
           Create an account to continue
         </h2>
-        <button className="w-full py-3.5 bg-gray-900 text-white rounded-full font-medium text-sm cursor-pointer hover:bg-gray-700 transition-colors mb-4">
+        <Link
+          to="/signup"
+          className="block w-full py-3.5 bg-gray-900 text-white rounded-full font-medium text-sm text-center cursor-pointer hover:bg-gray-700 transition-colors mb-4"
+        >
           Create account
-        </button>
+        </Link>
         <p className="text-sm text-gray-500">
           Already have an account?{' '}
-          <a href="#" className="underline font-medium text-gray-900">Log in</a>
+          <Link to="/login" className="underline font-medium text-gray-900">Log in</Link>
         </p>
       </div>
     </div>
