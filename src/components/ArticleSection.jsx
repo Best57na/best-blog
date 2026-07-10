@@ -132,33 +132,35 @@ export default function ArticleSection() {
   const [hasMore, setHasMore] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
 
-  const fetchPosts = async (currentPage, category) => {
-    if (isLoading) return
-    setIsLoading(true)
-    try {
-      const params = { page: currentPage, limit: 6 }
-      if (category !== "Highlight") params.category = category
-      const response = await axios.get(API_URL, { params })
-      setPosts((prev) => currentPage === 1 ? response.data.posts : [...prev, ...response.data.posts])
-      setHasMore(response.data.currentPage < response.data.totalPages)
-    } catch (error) {
-      console.error("Error fetching posts:", error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  // โหลดเพิ่มเมื่อ page เปลี่ยน (ยกเว้น reset กลับ 1)
   useEffect(() => {
-    fetchPosts(page, selectedCategory)
+    let cancelled = false
+    const fetchPosts = async () => {
+      setIsLoading(true)
+      try {
+        const params = { page, limit: 6 }
+        if (selectedCategory !== "Highlight") params.category = selectedCategory
+        const response = await axios.get(API_URL, { params })
+        if (!cancelled) {
+          setPosts((prev) => page === 1 ? response.data.posts : [...prev, ...response.data.posts])
+          setHasMore(response.data.currentPage < response.data.totalPages)
+        }
+      } catch (error) {
+        console.error("Error fetching posts:", error)
+      } finally {
+        if (!cancelled) setIsLoading(false)
+      }
+    }
+    fetchPosts()
+    return () => { cancelled = true }
   }, [page, selectedCategory])
 
-  // รีเซ็ตเมื่อเปลี่ยน category
-  useEffect(() => {
+  const handleCategoryChange = (cat) => {
+    if (cat === selectedCategory) return
     setPosts([])
-    setPage(1)
     setHasMore(true)
-  }, [selectedCategory])
+    setPage(1)
+    setSelectedCategory(cat)
+  }
 
   const handleLoadMore = () => {
     setPage((prev) => prev + 1)
@@ -175,7 +177,7 @@ export default function ArticleSection() {
             <button
               key={cat}
               disabled={selectedCategory === cat}
-              onClick={() => setSelectedCategory(cat)}
+              onClick={() => handleCategoryChange(cat)}
               className={`px-4 py-3 transition-colors rounded-sm text-sm text-muted-foreground font-medium ${
                 selectedCategory === cat
                   ? 'bg-[#DAD6D1] cursor-not-allowed'
@@ -194,7 +196,7 @@ export default function ArticleSection() {
         <SearchBox className="w-full" />
         <div>
           <p className="text-xs text-gray-400 mb-1.5">Category</p>
-          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+          <Select value={selectedCategory} onValueChange={handleCategoryChange}>
             <SelectTrigger className="w-full py-3 rounded-sm text-muted-foreground">
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
@@ -223,15 +225,22 @@ export default function ArticleSection() {
         ))}
       </div>
 
+      {/* Loading spinner */}
+      {isLoading && (
+        <div className="flex flex-col items-center justify-center py-12 gap-3">
+          <div className="w-10 h-10 border-2 border-gray-200 border-t-gray-800 rounded-full animate-spin" />
+          <span className="text-sm text-gray-500">Loading...</span>
+        </div>
+      )}
+
       {/* View more */}
-      {hasMore && (
+      {hasMore && !isLoading && (
         <div className="text-center mt-8 mb-4">
           <button
             onClick={handleLoadMore}
-            disabled={isLoading}
-            className="text-sm text-gray-500 underline underline-offset-4 cursor-pointer hover:text-gray-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="text-sm text-gray-500 underline underline-offset-4 cursor-pointer hover:text-gray-900 transition-colors"
           >
-            {isLoading ? 'Loading...' : 'View more'}
+            View more
           </button>
         </div>
       )}
