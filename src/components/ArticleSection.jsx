@@ -128,18 +128,41 @@ function BlogCard({ id, image, category, title, description, author, date }) {
 export default function ArticleSection() {
   const [selectedCategory, setSelectedCategory] = useState("Highlight")
   const [posts, setPosts] = useState([])
+  const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
 
-  useEffect(() => {
-    const fetchPosts = async () => {
-      const params = { page: 1, limit: 6 }
-      if (selectedCategory !== "Highlight") {
-        params.category = selectedCategory
-      }
+  const fetchPosts = async (currentPage, category) => {
+    if (isLoading) return
+    setIsLoading(true)
+    try {
+      const params = { page: currentPage, limit: 6 }
+      if (category !== "Highlight") params.category = category
       const response = await axios.get(API_URL, { params })
-      setPosts(response.data.posts)
+      setPosts((prev) => currentPage === 1 ? response.data.posts : [...prev, ...response.data.posts])
+      setHasMore(response.data.currentPage < response.data.totalPages)
+    } catch (error) {
+      console.error("Error fetching posts:", error)
+    } finally {
+      setIsLoading(false)
     }
-    fetchPosts()
+  }
+
+  // โหลดเพิ่มเมื่อ page เปลี่ยน (ยกเว้น reset กลับ 1)
+  useEffect(() => {
+    fetchPosts(page, selectedCategory)
+  }, [page, selectedCategory])
+
+  // รีเซ็ตเมื่อเปลี่ยน category
+  useEffect(() => {
+    setPosts([])
+    setPage(1)
+    setHasMore(true)
   }, [selectedCategory])
+
+  const handleLoadMore = () => {
+    setPage((prev) => prev + 1)
+  }
 
   return (
     <div className="px-4 md:px-6 py-4">
@@ -201,11 +224,17 @@ export default function ArticleSection() {
       </div>
 
       {/* View more */}
-      <div className="text-center mt-8 mb-4">
-        <button className="text-sm text-gray-500 underline underline-offset-4 cursor-pointer hover:text-gray-900 transition-colors">
-          View more
-        </button>
-      </div>
+      {hasMore && (
+        <div className="text-center mt-8 mb-4">
+          <button
+            onClick={handleLoadMore}
+            disabled={isLoading}
+            className="text-sm text-gray-500 underline underline-offset-4 cursor-pointer hover:text-gray-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isLoading ? 'Loading...' : 'View more'}
+          </button>
+        </div>
+      )}
     </div>
   )
 }
