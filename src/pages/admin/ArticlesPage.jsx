@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
+import { toast } from 'sonner'
 import axios from 'axios'
 import { Pencil, Trash2, Plus, Search, ChevronDown } from 'lucide-react'
 
@@ -48,6 +49,7 @@ export default function ArticlesPage() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('')
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null)
 
   useEffect(() => {
     const stored = getAdminArticles()
@@ -91,6 +93,14 @@ export default function ArticlesPage() {
     }),
     [articles, search, statusFilter, categoryFilter]
   )
+
+  const deleteArticle = (id) => {
+    const updated = articles.filter(a => a.id !== id)
+    saveAdminArticles(updated)
+    setArticles(updated)
+    setConfirmDeleteId(null)
+    toast.success('Article deleted')
+  }
 
   return (
     <div>
@@ -167,12 +177,12 @@ export default function ArticlesPage() {
                       >
                         <Pencil size={15} />
                       </Link>
-                      <Link
-                        to={`/admin/articles/${a.id}/delete`}
-                        className="p-1.5 text-gray-400 hover:text-red-500 transition-colors"
+                      <button
+                        onClick={() => setConfirmDeleteId(a.id)}
+                        className="p-1.5 text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
                       >
                         <Trash2 size={15} />
-                      </Link>
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -181,6 +191,30 @@ export default function ArticlesPage() {
           </tbody>
         </table>
       </div>
+
+      {/* Delete confirmation dialog */}
+      {confirmDeleteId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+          <div className="bg-white rounded-2xl p-6 w-80 shadow-xl">
+            <h3 className="text-base font-semibold text-gray-900 mb-2">Delete article</h3>
+            <p className="text-sm text-gray-500 mb-6">Are you sure you want to delete this article? This action cannot be undone.</p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setConfirmDeleteId(null)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-200 rounded-full hover:bg-gray-50 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => deleteArticle(confirmDeleteId)}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-full hover:bg-red-600 transition-colors cursor-pointer"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
