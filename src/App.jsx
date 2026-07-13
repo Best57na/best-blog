@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import { NavBar, Footer } from './components/Sections'
 import { HeroSection } from './components/Sections'
@@ -7,6 +7,12 @@ import PostPage from './pages/PostPage'
 import SignUpPage from './pages/SignUpPage'
 import LoginPage from './pages/LoginPage'
 import NotFoundPage from './pages/NotFoundPage'
+import AdminLayout from './pages/admin/AdminLayout'
+import ArticlesPage from './pages/admin/ArticlesPage'
+import CategoriesPage from './pages/admin/CategoriesPage'
+import ProfilePage from './pages/admin/ProfilePage'
+import NotificationPage from './pages/admin/NotificationPage'
+import ResetPasswordPage from './pages/admin/ResetPasswordPage'
 import './App.css'
 
 function HomePage() {
@@ -28,6 +34,14 @@ function App() {
         <Route path="/post/:postId" element={<PostPage />} />
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<Navigate to="/admin/articles" replace />} />
+          <Route path="articles" element={<ArticlesPage />} />
+          <Route path="categories" element={<CategoriesPage />} />
+          <Route path="profile" element={<ProfilePage />} />
+          <Route path="notification" element={<NotificationPage />} />
+          <Route path="reset-password" element={<ResetPasswordPage />} />
+        </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
       <Toaster position="bottom-right" richColors />
