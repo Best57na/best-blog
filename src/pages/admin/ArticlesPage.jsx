@@ -1,10 +1,46 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
 import { Pencil, Trash2, Plus, Search, ChevronDown } from 'lucide-react'
 
 const API_URL = 'https://blog-post-project-api.vercel.app/posts'
-const CATEGORIES = ['Cat', 'General', 'Inspiration', 'Adventure', 'Culture', 'Food', 'Tips']
+
+export function getAdminArticles() {
+  return JSON.parse(localStorage.getItem('adminArticles') || 'null')
+}
+
+export function saveAdminArticles(articles) {
+  localStorage.setItem('adminArticles', JSON.stringify(articles))
+}
+
+function StatusBadge({ status }) {
+  return status === 'published' ? (
+    <span className="flex items-center gap-1.5 text-sm text-green-600 font-medium">
+      <span className="w-1.5 h-1.5 bg-green-500 rounded-full flex-shrink-0" />
+      Published
+    </span>
+  ) : (
+    <span className="flex items-center gap-1.5 text-sm text-gray-400 font-medium">
+      <span className="w-1.5 h-1.5 bg-gray-300 rounded-full flex-shrink-0" />
+      Draft
+    </span>
+  )
+}
+
+function SelectFilter({ value, onChange, children }) {
+  return (
+    <div className="relative">
+      <select
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        className="appearance-none border border-gray-200 rounded-lg pl-3 pr-8 py-2 text-sm text-gray-600 focus:outline-none focus:ring-1 focus:ring-gray-300 cursor-pointer bg-white"
+      >
+        {children}
+      </select>
+      <ChevronDown size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+    </div>
+  )
+}
 
 export default function ArticlesPage() {
   const [articles, setArticles] = useState([])
@@ -14,24 +50,47 @@ export default function ArticlesPage() {
   const [categoryFilter, setCategoryFilter] = useState('')
 
   useEffect(() => {
-    const fetchAll = async () => {
-      try {
-        const res = await axios.get(API_URL, { params: { limit: 100 } })
-        setArticles(res.data.posts || [])
-      } catch (e) {
-        console.error(e)
-      } finally {
-        setLoading(false)
-      }
+    const stored = getAdminArticles()
+    if (stored) {
+      setArticles(stored)
+      setLoading(false)
+      return
     }
-    fetchAll()
+    // First load: seed from API
+    axios.get(API_URL, { params: { limit: 6 } })
+      .then(res => {
+        const seeded = (res.data.posts || []).map((p, i) => ({
+          id: p.id,
+          title: p.title,
+          category: p.category,
+          description: p.description,
+          content: p.content,
+          image: p.image,
+          author: p.author,
+          date: p.date,
+          status: i === 1 ? 'draft' : 'published',
+        }))
+        saveAdminArticles(seeded)
+        setArticles(seeded)
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false))
   }, [])
 
-  const filtered = articles.filter(a => {
-    const matchSearch = a.title.toLowerCase().includes(search.toLowerCase())
-    const matchCategory = !categoryFilter || a.category === categoryFilter
-    return matchSearch && matchCategory
-  })
+  const categories = useMemo(
+    () => [...new Set(articles.map(a => a.category))].sort(),
+    [articles]
+  )
+
+  const filtered = useMemo(() =>
+    articles.filter(a => {
+      const matchSearch = a.title.toLowerCase().includes(search.toLowerCase())
+      const matchStatus = !statusFilter || a.status === statusFilter
+      const matchCategory = !categoryFilter || a.category === categoryFilter
+      return matchSearch && matchStatus && matchCategory
+    }),
+    [articles, search, statusFilter, categoryFilter]
+  )
 
   return (
     <div>
@@ -59,30 +118,16 @@ export default function ArticlesPage() {
             />
           </div>
 
-          <div className="relative">
-            <select
-              value={statusFilter}
-              onChange={e => setStatusFilter(e.target.value)}
-              className="appearance-none border border-gray-200 rounded-lg pl-3 pr-8 py-2 text-sm text-gray-600 focus:outline-none cursor-pointer bg-white"
-            >
-              <option value="">Status</option>
-              <option value="published">Published</option>
-              <option value="draft">Draft</option>
-            </select>
-            <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-          </div>
+          <SelectFilter value={statusFilter} onChange={setStatusFilter}>
+            <option value="">Status</option>
+            <option value="published">Published</option>
+            <option value="draft">Draft</option>
+          </SelectFilter>
 
-          <div className="relative">
-            <select
-              value={categoryFilter}
-              onChange={e => setCategoryFilter(e.target.value)}
-              className="appearance-none border border-gray-200 rounded-lg pl-3 pr-8 py-2 text-sm text-gray-600 focus:outline-none cursor-pointer bg-white"
-            >
-              <option value="">Category</option>
-              {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
-            <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-          </div>
+          <SelectFilter value={categoryFilter} onChange={setCategoryFilter}>
+            <option value="">Category</option>
+            {categories.map(c => <option key={c} value={c}>{c}</option>)}
+          </SelectFilter>
         </div>
 
         {/* Table */}
@@ -91,7 +136,7 @@ export default function ArticlesPage() {
             <tr className="border-b border-gray-100">
               <th className="text-left px-4 py-3 text-xs font-medium text-gray-500">Article title</th>
               <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 w-28">Category</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 w-28">Status</th>
+              <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 w-32">Status</th>
               <th className="px-4 py-3 w-20" />
             </tr>
           </thead>
@@ -107,15 +152,12 @@ export default function ArticlesPage() {
             ) : (
               filtered.map(a => (
                 <tr key={a.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
-                  <td className="px-4 py-3 text-sm text-gray-700">
-                    <span className="block max-w-xs truncate">{a.title}</span>
+                  <td className="px-4 py-3 text-sm text-gray-700 max-w-xs">
+                    <span className="block truncate">{a.title}</span>
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-500">{a.category}</td>
                   <td className="px-4 py-3">
-                    <span className="flex items-center gap-1.5 text-sm text-green-600 font-medium">
-                      <span className="w-1.5 h-1.5 bg-green-500 rounded-full flex-shrink-0" />
-                      Published
-                    </span>
+                    <StatusBadge status={a.status} />
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1 justify-end">
