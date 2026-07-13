@@ -13,6 +13,8 @@ import CategoriesPage from './pages/admin/CategoriesPage'
 import ProfilePage from './pages/admin/ProfilePage'
 import NotificationPage from './pages/admin/NotificationPage'
 import ResetPasswordPage from './pages/admin/ResetPasswordPage'
+import CreateArticlePage from './pages/admin/CreateArticlePage'
+import EditArticlePage from './pages/admin/EditArticlePage'
 import './App.css'
 
 function HomePage() {
@@ -37,6 +39,8 @@ function App() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Navigate to="/admin/articles" replace />} />
           <Route path="articles" element={<ArticlesPage />} />
+          <Route path="articles/create" element={<CreateArticlePage />} />
+          <Route path="articles/:id/edit" element={<EditArticlePage />} />
           <Route path="categories" element={<CategoriesPage />} />
           <Route path="profile" element={<ProfilePage />} />
           <Route path="notification" element={<NotificationPage />} />
