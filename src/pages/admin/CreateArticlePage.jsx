@@ -1,9 +1,9 @@
 import { useState, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { ImageIcon } from 'lucide-react'
 
-const CATEGORIES = ['Adventure', 'Culture', 'Food', 'Tips', 'Cat', 'General', 'Inspiration']
+const CATEGORIES = ['Highlight', 'Adventure', 'Culture', 'Food', 'Tips']
 
 function getArticles() {
   return JSON.parse(localStorage.getItem('adminArticles') || '[]')
@@ -81,6 +81,11 @@ export default function CreateArticlePage() {
 
   return (
     <div>
+      {/* Breadcrumb */}
+      <Link to="/admin/articles" className="text-sm text-[#5C9DFF] hover:underline mb-4 block">
+        Article management
+      </Link>
+
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-bold text-gray-900">Create article</h1>
