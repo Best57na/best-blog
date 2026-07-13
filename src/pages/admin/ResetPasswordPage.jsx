@@ -1,9 +1,42 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { X } from 'lucide-react'
+
+function ConfirmDialog({ onConfirm, onCancel }) {
+  return (
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl p-8 max-w-sm w-full text-center relative">
+        <button
+          onClick={onCancel}
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 transition-colors cursor-pointer"
+        >
+          <X size={18} />
+        </button>
+        <h2 className="text-lg font-bold text-gray-900 mb-2">Confirm password change</h2>
+        <p className="text-sm text-gray-500 mb-6">Are you sure you want to change your password?</p>
+        <div className="flex gap-3 justify-center">
+          <button
+            onClick={onCancel}
+            className="px-6 py-2.5 border border-gray-300 rounded-full text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="px-6 py-2.5 bg-gray-900 text-white rounded-full text-sm font-medium hover:bg-gray-700 transition-colors cursor-pointer"
+          >
+            Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export default function ResetPasswordPage() {
   const [form, setForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' })
   const [errors, setErrors] = useState({})
+  const [showDialog, setShowDialog] = useState(false)
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -11,8 +44,7 @@ export default function ResetPasswordPage() {
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }))
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
+  const validate = () => {
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}')
     const newErrors = {}
 
@@ -34,20 +66,33 @@ export default function ResetPasswordPage() {
       newErrors.confirmPassword = 'Passwords do not match'
     }
 
+    return newErrors
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    const newErrors = validate()
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
       return
     }
+    setShowDialog(true)
+  }
+
+  const handleConfirm = () => {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}')
+    const updatedUser = { ...currentUser, password: form.newPassword }
 
     const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]')
-    const updatedUsers = users.map(u =>
-      u.email === currentUser.email ? { ...u, password: form.newPassword } : u
+    localStorage.setItem(
+      'registeredUsers',
+      JSON.stringify(users.map(u => u.email === currentUser.email ? updatedUser : u))
     )
-    localStorage.setItem('registeredUsers', JSON.stringify(updatedUsers))
-    localStorage.setItem('currentUser', JSON.stringify({ ...currentUser, password: form.newPassword }))
+    localStorage.setItem('currentUser', JSON.stringify(updatedUser))
 
+    setShowDialog(false)
     setForm({ currentPassword: '', newPassword: '', confirmPassword: '' })
-    toast.success('Password reset successfully')
+    toast.success('Password changed successfully')
   }
 
   const inputClass = (field) =>
@@ -83,6 +128,13 @@ export default function ResetPasswordPage() {
           </button>
         </form>
       </div>
+
+      {showDialog && (
+        <ConfirmDialog
+          onConfirm={handleConfirm}
+          onCancel={() => setShowDialog(false)}
+        />
+      )}
     </div>
   )
 }
