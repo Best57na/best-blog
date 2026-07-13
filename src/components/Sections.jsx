@@ -5,9 +5,9 @@ import myPic from '../assets/My pic.jpg'
 import logo from '../assets/logo.png'
 
 const DEMO_NOTIFICATIONS = [
-  { id: 1, title: 'Welcome to the admin panel', message: 'Start managing your articles and profile settings.', read: false },
-  { id: 2, title: 'New comment on your article', message: 'Someone left a comment on "Exploring Hidden Gems".', read: false },
-  { id: 3, title: 'Article published', message: 'Your article has been successfully published.', read: true },
+  { id: 1, title: 'Welcome to the admin panel', message: 'Start managing your articles and profile settings.', read: false, link: '/admin/profile' },
+  { id: 2, title: 'New comment on your article', message: 'Someone left a comment on "Exploring Hidden Gems".', read: false, link: '/admin/articles' },
+  { id: 3, title: 'Article published', message: 'Your article has been successfully published.', read: true, link: '/admin/articles' },
 ]
 
 function useClickOutside(ref, onClose) {

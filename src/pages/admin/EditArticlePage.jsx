@@ -3,6 +3,12 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { ImageIcon } from 'lucide-react'
 
+function pushNotification(title, message, link) {
+  const stored = JSON.parse(localStorage.getItem('notifications') || '[]')
+  const notif = { id: Date.now(), title, message, read: false, link }
+  localStorage.setItem('notifications', JSON.stringify([notif, ...stored]))
+}
+
 const CATEGORIES = ['Highlight', 'Adventure', 'Culture', 'Food', 'Tips']
 
 export default function EditArticlePage() {
@@ -65,8 +71,10 @@ export default function EditArticlePage() {
 
     if (status === 'draft') {
       toast.success('Article saved as draft')
+      pushNotification('Article saved as draft', `"${form.title}" has been saved as a draft.`, '/admin/articles')
     } else {
       toast.success('Article published successfully')
+      pushNotification('Article published', `"${form.title}" has been successfully published.`, '/admin/articles')
     }
     navigate('/admin/articles')
   }

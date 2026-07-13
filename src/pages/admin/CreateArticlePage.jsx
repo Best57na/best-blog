@@ -9,6 +9,12 @@ function getArticles() {
   return JSON.parse(localStorage.getItem('adminArticles') || '[]')
 }
 
+function pushNotification(title, message, link) {
+  const stored = JSON.parse(localStorage.getItem('notifications') || '[]')
+  const notif = { id: Date.now(), title, message, read: false, link }
+  localStorage.setItem('notifications', JSON.stringify([notif, ...stored]))
+}
+
 export default function CreateArticlePage() {
   const navigate = useNavigate()
   const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}')
@@ -67,8 +73,10 @@ export default function CreateArticlePage() {
 
     if (status === 'draft') {
       toast.success('Create article and saved as draft', { description: 'You can publish article later' })
+      pushNotification('Article saved as draft', `"${form.title}" has been saved as a draft.`, '/admin/articles')
     } else {
       toast.success('Create article and published', { description: 'Your article has been successfully published' })
+      pushNotification('Article published', `"${form.title}" has been successfully published.`, '/admin/articles')
     }
 
     navigate('/admin/articles')
