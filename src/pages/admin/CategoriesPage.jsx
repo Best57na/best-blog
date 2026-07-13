@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { toast } from 'sonner'
-import { Search, Pencil, Trash2, X } from 'lucide-react'
+import { Search, Pencil, Trash2, X, Plus } from 'lucide-react'
 
 const DEFAULT_CATEGORIES = [
   { id: '1', name: 'Highlight', description: 'Featured and trending articles' },
@@ -21,10 +21,71 @@ function saveCategories(cats) {
   localStorage.setItem('adminCategories', JSON.stringify(cats))
 }
 
+function CategoryDialog({ title, form, errors, onChange, onClose, onSave, saveLabel }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+      <div className="bg-white rounded-2xl p-6 w-96 shadow-xl">
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="text-base font-semibold text-gray-900">{title}</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-700 transition-colors cursor-pointer">
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Category name</label>
+            <input
+              type="text"
+              value={form.name}
+              onChange={e => onChange('name', e.target.value)}
+              placeholder="Category name"
+              className={`w-full border rounded-lg px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-1 transition-colors placeholder-gray-300 ${
+                errors.name ? 'border-red-400 focus:ring-red-200' : 'border-gray-200 focus:ring-gray-300'
+              }`}
+            />
+            {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name}</p>}
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
+            <textarea
+              value={form.description}
+              onChange={e => onChange('description', e.target.value)}
+              placeholder="Category description"
+              rows={3}
+              className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-700 resize-none focus:outline-none focus:ring-1 focus:ring-gray-300 placeholder-gray-300"
+            />
+          </div>
+        </div>
+
+        <div className="flex gap-3 justify-end mt-6">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-200 rounded-full hover:bg-gray-50 transition-colors cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onSave}
+            className="px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-full hover:bg-gray-700 transition-colors cursor-pointer"
+          >
+            {saveLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function CategoriesPage() {
   const [categories, setCategories] = useState(getCategories)
   const [search, setSearch] = useState('')
   const [confirmDeleteId, setConfirmDeleteId] = useState(null)
+
+  const [createOpen, setCreateOpen] = useState(false)
+  const [createForm, setCreateForm] = useState({ name: '', description: '' })
+  const [createErrors, setCreateErrors] = useState({})
+
   const [editItem, setEditItem] = useState(null)
   const [editForm, setEditForm] = useState({ name: '', description: '' })
   const [editErrors, setEditErrors] = useState({})
@@ -34,6 +95,31 @@ export default function CategoriesPage() {
     [categories, search]
   )
 
+  // Create
+  const openCreate = () => {
+    setCreateForm({ name: '', description: '' })
+    setCreateErrors({})
+    setCreateOpen(true)
+  }
+
+  const saveCreate = () => {
+    if (!createForm.name.trim()) {
+      setCreateErrors({ name: 'Name is required' })
+      return
+    }
+    const newCat = {
+      id: Date.now().toString(),
+      name: createForm.name.trim(),
+      description: createForm.description.trim(),
+    }
+    const updated = [...categories, newCat]
+    saveCategories(updated)
+    setCategories(updated)
+    setCreateOpen(false)
+    toast.success('Category created successfully')
+  }
+
+  // Edit
   const openEdit = (cat) => {
     setEditItem(cat)
     setEditForm({ name: cat.name, description: cat.description })
@@ -56,6 +142,7 @@ export default function CategoriesPage() {
     toast.success('Category updated successfully')
   }
 
+  // Delete
   const deleteCategory = (id) => {
     const updated = categories.filter(c => c.id !== id)
     saveCategories(updated)
@@ -66,10 +153,19 @@ export default function CategoriesPage() {
 
   return (
     <div>
-      <h1 className="text-xl font-bold text-gray-900 mb-6">Category management</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-xl font-bold text-gray-900">Category management</h1>
+        <button
+          onClick={openCreate}
+          className="flex items-center gap-1.5 px-4 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-full hover:bg-gray-700 transition-colors cursor-pointer"
+        >
+          <Plus size={15} />
+          Create category
+        </button>
+      </div>
 
       <div className="bg-white rounded-xl overflow-hidden">
-        {/* Search bar */}
+        {/* Search */}
         <div className="px-4 py-3 border-b border-gray-100">
           <div className="relative max-w-xs">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
@@ -131,63 +227,36 @@ export default function CategoriesPage() {
         </table>
       </div>
 
+      {/* Create dialog */}
+      {createOpen && (
+        <CategoryDialog
+          title="Create category"
+          form={createForm}
+          errors={createErrors}
+          onChange={(field, value) => {
+            setCreateForm(prev => ({ ...prev, [field]: value }))
+            if (field === 'name') setCreateErrors({})
+          }}
+          onClose={() => setCreateOpen(false)}
+          onSave={saveCreate}
+          saveLabel="Create"
+        />
+      )}
+
       {/* Edit dialog */}
       {editItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-          <div className="bg-white rounded-2xl p-6 w-96 shadow-xl">
-            <div className="flex items-center justify-between mb-5">
-              <h3 className="text-base font-semibold text-gray-900">Edit category</h3>
-              <button
-                onClick={() => setEditItem(null)}
-                className="text-gray-400 hover:text-gray-700 transition-colors cursor-pointer"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <div className="flex flex-col gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Category name</label>
-                <input
-                  type="text"
-                  value={editForm.name}
-                  onChange={e => {
-                    setEditForm(prev => ({ ...prev, name: e.target.value }))
-                    setEditErrors({})
-                  }}
-                  className={`w-full border rounded-lg px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-1 transition-colors ${
-                    editErrors.name ? 'border-red-400 focus:ring-red-200' : 'border-gray-200 focus:ring-gray-300'
-                  }`}
-                />
-                {editErrors.name && <p className="text-xs text-red-500 mt-1">{editErrors.name}</p>}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
-                <textarea
-                  value={editForm.description}
-                  onChange={e => setEditForm(prev => ({ ...prev, description: e.target.value }))}
-                  rows={3}
-                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-700 resize-none focus:outline-none focus:ring-1 focus:ring-gray-300"
-                />
-              </div>
-            </div>
-
-            <div className="flex gap-3 justify-end mt-6">
-              <button
-                onClick={() => setEditItem(null)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-200 rounded-full hover:bg-gray-50 transition-colors cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={saveEdit}
-                className="px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-full hover:bg-gray-700 transition-colors cursor-pointer"
-              >
-                Save changes
-              </button>
-            </div>
-          </div>
-        </div>
+        <CategoryDialog
+          title="Edit category"
+          form={editForm}
+          errors={editErrors}
+          onChange={(field, value) => {
+            setEditForm(prev => ({ ...prev, [field]: value }))
+            if (field === 'name') setEditErrors({})
+          }}
+          onClose={() => setEditItem(null)}
+          onSave={saveEdit}
+          saveLabel="Save changes"
+        />
       )}
 
       {/* Delete confirmation dialog */}
