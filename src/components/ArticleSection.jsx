@@ -7,7 +7,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 
 const categories = ["Highlight", "Adventure", "Culture", "Food", "Tips"]
 
-const API_URL = "https://blog-post-project-api.vercel.app/posts"
+const API_URL = "https://best-blog-server.vercel.app/posts"
 
 const formatDate = (isoDate) => {
   return new Date(isoDate).toLocaleDateString("en-GB", {

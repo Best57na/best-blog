@@ -4,7 +4,7 @@ import { toast } from 'sonner'
 import axios from 'axios'
 import { Pencil, Trash2, Plus, Search, ChevronDown } from 'lucide-react'
 
-const API_URL = 'https://blog-post-project-api.vercel.app/posts'
+const API_URL = 'https://best-blog-server.vercel.app/posts'
 
 export function getAdminArticles() {
   return JSON.parse(localStorage.getItem('adminArticles') || 'null')

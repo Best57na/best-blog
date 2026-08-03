@@ -87,9 +87,9 @@ export default function PostPage() {
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const res = await axios.get(`https://blog-post-project-api.vercel.app/posts/${postId}`)
+        const res = await axios.get(`https://best-blog-server.vercel.app/posts/${postId}`)
         setPost(res.data)
-        setLikeCount(res.data.likes)
+        setLikeCount(res.data.likes_count)
       } catch {
         navigate('/404')
       } finally {
