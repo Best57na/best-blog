@@ -600,6 +600,33 @@ export default function AITravelSuitePage() {
     return persisted && !persisted.needsFlight ? 'route' : 'flights'
   })
   const timers = useRef([])
+  const tabsRef = useRef(null)
+  const dragState = useRef({ isDown: false, moved: false, startX: 0, scrollLeft: 0 })
+
+  const handleTabsMouseDown = (e) => {
+    const el = tabsRef.current
+    if (!el) return
+    dragState.current = { isDown: true, moved: false, startX: e.pageX - el.offsetLeft, scrollLeft: el.scrollLeft }
+    el.classList.add('cursor-grabbing')
+  }
+  const handleTabsMouseUpOrLeave = () => {
+    dragState.current.isDown = false
+    tabsRef.current?.classList.remove('cursor-grabbing')
+  }
+  const handleTabsMouseMove = (e) => {
+    if (!dragState.current.isDown) return
+    const el = tabsRef.current
+    if (!el) return
+    e.preventDefault()
+    const x = e.pageX - el.offsetLeft
+    const walk = x - dragState.current.startX
+    if (Math.abs(walk) > 5) dragState.current.moved = true
+    el.scrollLeft = dragState.current.scrollLeft - walk
+  }
+  const handleTabClick = (tabId) => {
+    if (dragState.current.moved) { dragState.current.moved = false; return }
+    setActiveTab(tabId)
+  }
 
   useEffect(() => {
     localStorage.setItem(FORM_KEY, JSON.stringify(form))
@@ -709,13 +736,20 @@ export default function AITravelSuitePage() {
         {result && !isLoading && (
           <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden">
             <div className="flex items-center justify-between gap-2 px-4 md:px-6 pt-5">
-              <div className="flex-1 min-w-0 flex gap-1 overflow-x-auto no-scrollbar">
+              <div
+                ref={tabsRef}
+                onMouseDown={handleTabsMouseDown}
+                onMouseMove={handleTabsMouseMove}
+                onMouseUp={handleTabsMouseUpOrLeave}
+                onMouseLeave={handleTabsMouseUpOrLeave}
+                className="flex-1 min-w-0 flex gap-1 overflow-x-auto no-scrollbar cursor-grab select-none"
+              >
                 {TABS.filter(tab => tab.id !== 'flights' || result.needsFlight).map(tab => {
                   const Icon = tab.icon
                   return (
                     <button
                       key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
+                      onClick={() => handleTabClick(tab.id)}
                       className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition-colors cursor-pointer ${
                         activeTab === tab.id
                           ? 'bg-sky-500 text-white'
