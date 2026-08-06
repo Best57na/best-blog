@@ -7,13 +7,13 @@ import { API_BASE } from '../../utils/api'
 
 function StatusBadge({ status }) {
   return status === 'publish' ? (
-    <span className="flex items-center gap-1.5 text-sm text-green-600 font-medium">
+    <span className="flex items-center gap-1.5 text-sm text-green-600 dark:text-green-400 font-medium">
       <span className="w-1.5 h-1.5 bg-green-500 rounded-full flex-shrink-0" />
       Published
     </span>
   ) : (
-    <span className="flex items-center gap-1.5 text-sm text-gray-400 font-medium">
-      <span className="w-1.5 h-1.5 bg-gray-300 rounded-full flex-shrink-0" />
+    <span className="flex items-center gap-1.5 text-sm text-gray-400 dark:text-gray-500 font-medium">
+      <span className="w-1.5 h-1.5 bg-gray-300 dark:bg-gray-600 rounded-full flex-shrink-0" />
       Draft
     </span>
   )
@@ -25,11 +25,11 @@ function SelectFilter({ value, onChange, children }) {
       <select
         value={value}
         onChange={e => onChange(e.target.value)}
-        className="appearance-none border border-gray-200 rounded-lg pl-3 pr-8 py-2 text-sm text-gray-600 focus:outline-none focus:ring-1 focus:ring-gray-300 cursor-pointer bg-white"
+        className="appearance-none border border-gray-200 dark:border-gray-700 rounded-lg pl-3 pr-8 py-2 text-sm text-gray-600 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-300 cursor-pointer bg-white dark:bg-gray-800"
       >
         {children}
       </select>
-      <ChevronDown size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+      <ChevronDown size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 pointer-events-none" />
     </div>
   )
 }
@@ -88,26 +88,26 @@ export default function ArticlesPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-bold text-gray-900">Article management</h1>
+        <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Article management</h1>
         <Link
           to="/admin/articles/create"
-          className="flex items-center gap-1.5 px-4 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-full hover:bg-gray-700 transition-colors"
+          className="flex items-center gap-1.5 px-4 py-2.5 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-sm font-medium rounded-full hover:bg-gray-700 dark:hover:bg-white transition-colors"
         >
           <Plus size={15} />
           Create article
         </Link>
       </div>
 
-      <div className="bg-white rounded-xl overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden">
         {/* Filters */}
-        <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100">
+        <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 dark:border-gray-700">
           <div className="relative flex-1 max-w-xs">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 pointer-events-none" />
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search..."
-              className="w-full pl-8 pr-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
+              className="w-full pl-8 pr-3 py-2 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg text-sm text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-300"
             />
           </div>
 
@@ -126,29 +126,29 @@ export default function ArticlesPage() {
         {/* Table */}
         <table className="w-full">
           <thead>
-            <tr className="border-b border-gray-100">
-              <th className="text-left px-4 py-3 text-xs font-medium text-gray-500">Article title</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 w-28">Category</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 w-32">Status</th>
+            <tr className="border-b border-gray-100 dark:border-gray-700">
+              <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400">Article title</th>
+              <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 w-28">Category</th>
+              <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 w-32">Status</th>
               <th className="px-4 py-3 w-20" />
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={4} className="text-center py-10 text-sm text-gray-400">Loading...</td>
+                <td colSpan={4} className="text-center py-10 text-sm text-gray-400 dark:text-gray-500">Loading...</td>
               </tr>
             ) : filtered.length === 0 ? (
               <tr>
-                <td colSpan={4} className="text-center py-10 text-sm text-gray-400">No articles found</td>
+                <td colSpan={4} className="text-center py-10 text-sm text-gray-400 dark:text-gray-500">No articles found</td>
               </tr>
             ) : (
               filtered.map(a => (
-                <tr key={a.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
-                  <td className="px-4 py-3 text-sm text-gray-700 max-w-xs">
+                <tr key={a.id} className="border-b border-gray-50 dark:border-gray-700 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                  <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-200 max-w-xs">
                     <span className="block truncate">{a.title}</span>
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-500">{a.category}</td>
+                  <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{a.category}</td>
                   <td className="px-4 py-3">
                     <StatusBadge status={a.status} />
                   </td>
@@ -156,13 +156,13 @@ export default function ArticlesPage() {
                     <div className="flex items-center gap-1 justify-end">
                       <Link
                         to={`/admin/articles/${a.id}/edit`}
-                        className="p-1.5 text-gray-400 hover:text-gray-700 transition-colors"
+                        className="p-1.5 text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
                       >
                         <Pencil size={15} />
                       </Link>
                       <button
                         onClick={() => setConfirmDeleteId(a.id)}
-                        className="p-1.5 text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
+                        className="p-1.5 text-gray-400 dark:text-gray-500 hover:text-red-500 transition-colors cursor-pointer"
                       >
                         <Trash2 size={15} />
                       </button>
@@ -178,13 +178,13 @@ export default function ArticlesPage() {
       {/* Delete confirmation dialog */}
       {confirmDeleteId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-          <div className="bg-white rounded-2xl p-6 w-80 shadow-xl">
-            <h3 className="text-base font-semibold text-gray-900 mb-2">Delete article</h3>
-            <p className="text-sm text-gray-500 mb-6">Are you sure you want to delete this article? This action cannot be undone.</p>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-80 shadow-xl">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-2">Delete article</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Are you sure you want to delete this article? This action cannot be undone.</p>
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setConfirmDeleteId(null)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-200 rounded-full hover:bg-gray-50 transition-colors cursor-pointer"
+                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600 rounded-full hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
               >
                 Cancel
               </button>
