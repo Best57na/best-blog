@@ -27,29 +27,29 @@ export default function NotificationPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-bold text-gray-900">Notification</h1>
+        <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Notification</h1>
         {unread > 0 && (
           <button
             onClick={markAllRead}
-            className="text-sm text-gray-500 hover:text-gray-900 underline underline-offset-2 cursor-pointer transition-colors"
+            className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 underline underline-offset-2 cursor-pointer transition-colors"
           >
             Mark all as read
           </button>
         )}
       </div>
 
-      <div className="bg-white rounded-xl overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden">
         {items.length === 0 ? (
-          <div className="text-center py-12 text-sm text-gray-400">No notifications</div>
+          <div className="text-center py-12 text-sm text-gray-400 dark:text-gray-500">No notifications</div>
         ) : (
           <ul>
             {items.map(n => (
               <li
                 key={n.id}
-                className={`flex items-start gap-4 px-6 py-4 border-b border-gray-50 last:border-0 transition-colors ${!n.read ? 'bg-blue-50/30' : ''}`}
+                className={`flex items-start gap-4 px-6 py-4 border-b border-gray-50 dark:border-gray-700 last:border-0 transition-colors ${!n.read ? 'bg-blue-50/30 dark:bg-blue-500/10' : ''}`}
               >
                 {/* Unread dot */}
-                <div className={`mt-1.5 w-2 h-2 rounded-full flex-shrink-0 ${!n.read ? 'bg-blue-500' : 'bg-gray-200'}`} />
+                <div className={`mt-1.5 w-2 h-2 rounded-full flex-shrink-0 ${!n.read ? 'bg-blue-500' : 'bg-gray-200 dark:bg-gray-600'}`} />
 
                 {/* Content */}
                 <div className="flex-1 min-w-0">
@@ -58,8 +58,8 @@ export default function NotificationPage() {
                       className="cursor-pointer"
                       onClick={() => markRead(n.id)}
                     >
-                      <p className="text-sm font-medium text-gray-900">{n.title}</p>
-                      <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{n.message}</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{n.title}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">{n.message}</p>
                     </div>
 
                     {/* Actions */}
@@ -70,7 +70,7 @@ export default function NotificationPage() {
                       {n.link && (
                         <button
                           onClick={() => handleView(n)}
-                          className="text-xs font-medium text-gray-600 border border-gray-200 rounded-full px-3 py-1 hover:bg-gray-100 hover:text-gray-900 transition-colors cursor-pointer"
+                          className="text-xs font-medium text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 rounded-full px-3 py-1 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-colors cursor-pointer"
                         >
                           View
                         </button>

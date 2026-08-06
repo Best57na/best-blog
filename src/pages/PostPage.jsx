@@ -32,17 +32,17 @@ const TwitterIcon = () => (
 function AuthDialog({ onClose }) {
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl px-10 py-10 max-w-sm w-full text-center relative">
-        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 transition-colors cursor-pointer">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl px-10 py-10 max-w-sm w-full text-center relative">
+        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors cursor-pointer">
           <X size={20} />
         </button>
-        <h2 className="text-2xl font-bold text-gray-900 mb-6 leading-snug">Create an account to continue</h2>
-        <Link to="/signup" className="block w-full py-3.5 bg-gray-900 text-white rounded-full font-medium text-sm text-center cursor-pointer hover:bg-gray-700 transition-colors mb-4">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 leading-snug">Create an account to continue</h2>
+        <Link to="/signup" className="block w-full py-3.5 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-full font-medium text-sm text-center cursor-pointer hover:bg-gray-700 dark:hover:bg-white transition-colors mb-4">
           Create account
         </Link>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-gray-500 dark:text-gray-400">
           Already have an account?{' '}
-          <Link to="/login" className="underline font-medium text-gray-900">Log in</Link>
+          <Link to="/login" className="underline font-medium text-gray-900 dark:text-gray-100">Log in</Link>
         </p>
       </div>
     </div>
@@ -52,10 +52,10 @@ function AuthDialog({ onClose }) {
 function CommentAvatar({ name, avatar }) {
   const initials = (name || 'U').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
   return (
-    <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 bg-gray-200 flex items-center justify-center">
+    <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
       {avatar
         ? <img src={avatar} alt={name} className="w-full h-full object-cover" />
-        : <span className="text-xs font-bold text-gray-600">{initials}</span>
+        : <span className="text-xs font-bold text-gray-600 dark:text-gray-300">{initials}</span>
       }
     </div>
   )
@@ -142,7 +142,7 @@ export default function PostPage() {
   }
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center text-gray-400">Loading...</div>
+    return <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center text-gray-400">Loading...</div>
   }
 
   if (!post) return null
@@ -150,10 +150,10 @@ export default function PostPage() {
   const pageUrl = window.location.href
 
   return (
-    <div>
+    <div className="min-h-screen bg-white dark:bg-gray-900">
       <NavBar />
       <main className="max-w-3xl mx-auto px-4 md:px-6 py-10">
-        <button onClick={() => navigate(-1)} className="text-sm text-gray-400 hover:text-gray-700 mb-6 flex items-center gap-1 cursor-pointer transition-colors">
+        <button onClick={() => navigate(-1)} className="text-sm text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 mb-6 flex items-center gap-1 cursor-pointer transition-colors">
           ← Back
         </button>
 
@@ -161,11 +161,11 @@ export default function PostPage() {
           {post.category}
         </span>
 
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight mb-4">{post.title}</h1>
+        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 leading-tight mb-4">{post.title}</h1>
 
-        <div className="flex items-center gap-3 text-sm text-gray-400 mb-6">
-          <div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-xs font-semibold text-gray-600">T</div>
-          <span className="text-gray-600 font-medium">{post.author}</span>
+        <div className="flex items-center gap-3 text-sm text-gray-400 dark:text-gray-500 mb-6">
+          <div className="w-7 h-7 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs font-semibold text-gray-600 dark:text-gray-300">T</div>
+          <span className="text-gray-600 dark:text-gray-300 font-medium">{post.author}</span>
           <span>|</span>
           <span>{formatDate(post.date)}</span>
         </div>
@@ -177,13 +177,13 @@ export default function PostPage() {
         </div>
 
         {/* Action bar */}
-        <div className="flex items-center justify-between bg-stone-100 rounded-2xl px-4 py-3 mt-10 mb-8">
+        <div className="flex items-center justify-between bg-stone-100 dark:bg-gray-800 rounded-2xl px-4 py-3 mt-10 mb-8">
           <button
             onClick={handleLike}
             className={`flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium cursor-pointer transition-colors ${
               liked
-                ? 'border-orange-300 bg-orange-50 text-orange-500'
-                : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                ? 'border-orange-300 dark:border-orange-500/60 bg-orange-50 dark:bg-orange-500/10 text-orange-500'
+                : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600'
             }`}
           >
             <SmilePlus size={16} />
@@ -191,17 +191,17 @@ export default function PostPage() {
           </button>
 
           <div className="flex items-center gap-2">
-            <button onClick={handleCopy} className="flex items-center gap-2 px-4 py-2 rounded-full border border-gray-300 bg-white text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-50 transition-colors">
+            <button onClick={handleCopy} className="flex items-center gap-2 px-4 py-2 rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-200 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
               <Copy size={15} />
               Copy
             </button>
-            <a href={`https://www.facebook.com/share.php?u=${encodeURIComponent(pageUrl)}`} target="_blank" rel="noopener noreferrer" className="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 bg-white text-gray-600 hover:bg-gray-50 transition-colors">
+            <a href={`https://www.facebook.com/share.php?u=${encodeURIComponent(pageUrl)}`} target="_blank" rel="noopener noreferrer" className="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
               <FacebookIcon />
             </a>
-            <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(pageUrl)}`} target="_blank" rel="noopener noreferrer" className="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 bg-white text-gray-600 hover:bg-gray-50 transition-colors">
+            <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(pageUrl)}`} target="_blank" rel="noopener noreferrer" className="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
               <LinkedInIcon />
             </a>
-            <a href={`https://www.twitter.com/share?&url=${encodeURIComponent(pageUrl)}`} target="_blank" rel="noopener noreferrer" className="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 bg-white text-gray-600 hover:bg-gray-50 transition-colors">
+            <a href={`https://www.twitter.com/share?&url=${encodeURIComponent(pageUrl)}`} target="_blank" rel="noopener noreferrer" className="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
               <TwitterIcon />
             </a>
           </div>
@@ -209,8 +209,8 @@ export default function PostPage() {
 
         {/* Comment section */}
         <div className="mb-10">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">
-            Comment{comments.length > 0 && <span className="text-gray-400 font-normal text-base ml-1">({comments.length})</span>}
+          <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">
+            Comment{comments.length > 0 && <span className="text-gray-400 dark:text-gray-500 font-normal text-base ml-1">({comments.length})</span>}
           </h3>
 
           <textarea
@@ -218,10 +218,10 @@ export default function PostPage() {
             onChange={e => setComment(e.target.value)}
             placeholder="What are your thoughts?"
             rows={4}
-            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-700 placeholder-gray-400 resize-none focus:outline-none focus:ring-1 focus:ring-gray-300"
+            className="w-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-xl px-4 py-3 text-sm text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 resize-none focus:outline-none focus:ring-1 focus:ring-gray-300"
           />
           <div className="flex justify-end mt-3">
-            <button onClick={handleSend} className="px-6 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-full cursor-pointer hover:bg-gray-700 transition-colors">
+            <button onClick={handleSend} className="px-6 py-2.5 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-sm font-medium rounded-full cursor-pointer hover:bg-gray-700 dark:hover:bg-white transition-colors">
               Send
             </button>
           </div>
@@ -233,10 +233,10 @@ export default function PostPage() {
                   <CommentAvatar name={c.author} avatar={c.avatar} />
                   <div className="flex-1">
                     <div className="flex items-baseline gap-2">
-                      <p className="text-sm font-semibold text-gray-900">{c.author}</p>
-                      <p className="text-xs text-gray-400">{formatDate(c.date)}</p>
+                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{c.author}</p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500">{formatDate(c.date)}</p>
                     </div>
-                    <p className="text-sm text-gray-600 mt-1 leading-relaxed">{c.text}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-1 leading-relaxed">{c.text}</p>
                   </div>
                 </div>
               ))}

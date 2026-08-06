@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'sonner'
+import { useTheme } from './lib/theme'
 import { NavBar, Footer } from './components/Sections'
 import { HeroSection } from './components/Sections'
 import ArticleSection from './components/ArticleSection'
@@ -19,7 +20,7 @@ import './App.css'
 
 function HomePage() {
   return (
-    <div>
+    <div className="min-h-screen bg-stone-100 dark:bg-gray-900">
       <NavBar />
       <HeroSection />
       <ArticleSection />
@@ -29,6 +30,7 @@ function HomePage() {
 }
 
 function App() {
+  const { theme } = useTheme()
   return (
     <BrowserRouter>
       <Routes>
@@ -48,7 +50,7 @@ function App() {
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
-      <Toaster position="bottom-right" richColors />
+      <Toaster position="bottom-right" richColors theme={theme} />
     </BrowserRouter>
   )
 }

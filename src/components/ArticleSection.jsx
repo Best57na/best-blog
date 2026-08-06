@@ -67,18 +67,18 @@ function SearchBox({ className = '' }) {
       <Search size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
 
       {showDropdown && results.length === 0 && (
-        <div className="absolute top-full mt-2 left-0 right-0 bg-white border border-gray-100 rounded-2xl shadow-lg z-50 px-4 py-3 text-sm text-gray-400 text-center">
+        <div className="absolute top-full mt-2 left-0 right-0 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-lg z-50 px-4 py-3 text-sm text-gray-400 dark:text-gray-500 text-center">
           ไม่พบบทความที่ค้นหา
         </div>
       )}
 
       {showDropdown && results.length > 0 && (
-        <ul className="absolute top-full mt-2 left-0 right-0 bg-white border border-gray-100 rounded-2xl shadow-lg z-50 overflow-hidden">
+        <ul className="absolute top-full mt-2 left-0 right-0 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-lg z-50 overflow-hidden">
           {results.map((post) => (
             <li key={post.id}>
               <button
                 onMouseDown={() => handleSelect(post.id)}
-                className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+                className="w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
               >
                 {post.title}
               </button>
@@ -92,7 +92,7 @@ function SearchBox({ className = '' }) {
 
 function BlogCard({ id, image, category, title, description, author, date }) {
   return (
-    <div className="bg-white rounded-2xl overflow-hidden border border-gray-100">
+    <div className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700">
       <Link to={`/post/${id}`}>
         <img
           src={image}
@@ -106,19 +106,19 @@ function BlogCard({ id, image, category, title, description, author, date }) {
           {category}
         </span>
         <Link to={`/post/${id}`}>
-          <h3 className="font-bold text-gray-900 text-sm leading-snug mb-2 line-clamp-2 hover:underline">
+          <h3 className="font-bold text-gray-900 dark:text-gray-100 text-sm leading-snug mb-2 line-clamp-2 hover:underline">
             {title}
           </h3>
         </Link>
-        <p className="text-xs text-gray-400 leading-relaxed mb-3 line-clamp-2">
+        <p className="text-xs text-gray-400 dark:text-gray-500 leading-relaxed mb-3 line-clamp-2">
           {description}
         </p>
-        <div className="flex items-center gap-2 text-xs text-gray-400">
-          <div className="w-5 h-5 rounded-full bg-gray-200 flex-shrink-0 overflow-hidden">
-            <div className="w-full h-full flex items-center justify-center text-[9px] font-semibold text-gray-600">T</div>
+        <div className="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500">
+          <div className="w-5 h-5 rounded-full bg-gray-200 dark:bg-gray-700 flex-shrink-0 overflow-hidden">
+            <div className="w-full h-full flex items-center justify-center text-[9px] font-semibold text-gray-600 dark:text-gray-300">T</div>
           </div>
-          <span className="text-gray-600 text-xs font-medium">{author}</span>
-          <span className="text-gray-300">|</span>
+          <span className="text-gray-600 dark:text-gray-300 text-xs font-medium">{author}</span>
+          <span className="text-gray-300 dark:text-gray-600">|</span>
           <span>{date}</span>
         </div>
       </div>
@@ -176,10 +176,10 @@ export default function ArticleSection() {
 
   return (
     <div className="px-4 md:px-6 py-4">
-      <h2 className="text-2xl font-bold text-gray-900 mb-4">Latest articles</h2>
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Latest articles</h2>
 
       {/* Desktop: tabs + search */}
-      <div className="hidden md:flex items-center justify-between mb-6 bg-white rounded-2xl px-4 py-2.5 border border-gray-100">
+      <div className="hidden md:flex items-center justify-between mb-6 bg-white dark:bg-gray-800 rounded-2xl px-4 py-2.5 border border-gray-100 dark:border-gray-700">
         <div className="flex space-x-2">
           {[ALL_CATEGORY, ...categories].map((cat) => (
             <button
@@ -188,8 +188,8 @@ export default function ArticleSection() {
               onClick={() => handleCategoryChange(cat)}
               className={`px-4 py-3 transition-colors rounded-sm text-sm text-muted-foreground font-medium ${
                 selectedCategory === cat
-                  ? 'bg-[#DAD6D1] cursor-not-allowed'
-                  : 'cursor-pointer hover:bg-[#EFEEEB]'
+                  ? 'bg-[#DAD6D1] dark:bg-gray-600 cursor-not-allowed'
+                  : 'cursor-pointer hover:bg-[#EFEEEB] dark:hover:bg-gray-700'
               }`}
             >
               {cat}
@@ -203,7 +203,7 @@ export default function ArticleSection() {
       <div className="md:hidden w-full flex flex-col gap-3 mb-6">
         <SearchBox className="w-full" />
         <div>
-          <p className="text-xs text-gray-400 mb-1.5">Category</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mb-1.5">Category</p>
           <Select value={selectedCategory} onValueChange={handleCategoryChange}>
             <SelectTrigger className="w-full py-3 rounded-sm text-muted-foreground">
               <SelectValue placeholder="Select category" />
@@ -236,8 +236,8 @@ export default function ArticleSection() {
       {/* Loading spinner */}
       {isLoading && (
         <div className="flex flex-col items-center justify-center py-12 gap-3">
-          <div className="w-10 h-10 border-2 border-gray-200 border-t-gray-800 rounded-full animate-spin" />
-          <span className="text-sm text-gray-500">Loading...</span>
+          <div className="w-10 h-10 border-2 border-gray-200 dark:border-gray-700 border-t-gray-800 dark:border-t-gray-300 rounded-full animate-spin" />
+          <span className="text-sm text-gray-500 dark:text-gray-400">Loading...</span>
         </div>
       )}
 
@@ -246,7 +246,7 @@ export default function ArticleSection() {
         <div className="text-center mt-8 mb-4">
           <button
             onClick={handleLoadMore}
-            className="text-sm text-gray-500 underline underline-offset-4 cursor-pointer hover:text-gray-900 transition-colors"
+            className="text-sm text-gray-500 dark:text-gray-400 underline underline-offset-4 cursor-pointer hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
           >
             View more
           </button>
