@@ -4,6 +4,7 @@ import { Search } from 'lucide-react'
 import axios from 'axios'
 import { Input } from '@/components/ui/input'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
+import { useLanguage } from '../lib/language'
 
 const ALL_CATEGORY = "All"
 
@@ -19,6 +20,7 @@ const formatDate = (isoDate) => {
 }
 
 function SearchBox({ className = '' }) {
+  const { t } = useLanguage()
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
   const [showDropdown, setShowDropdown] = useState(false)
@@ -58,7 +60,7 @@ function SearchBox({ className = '' }) {
   return (
     <div ref={containerRef} className={`relative ${className}`}>
       <Input
-        placeholder="Search"
+        placeholder={t('article.searchPlaceholder')}
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         onFocus={() => results.length > 0 && setShowDropdown(true)}
@@ -68,7 +70,7 @@ function SearchBox({ className = '' }) {
 
       {showDropdown && results.length === 0 && (
         <div className="absolute top-full mt-2 left-0 right-0 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-lg z-50 px-4 py-3 text-sm text-gray-400 dark:text-gray-500 text-center">
-          ไม่พบบทความที่ค้นหา
+          {t('article.noResults')}
         </div>
       )}
 
@@ -127,6 +129,7 @@ function BlogCard({ id, image, category, title, description, author, date }) {
 }
 
 export default function ArticleSection() {
+  const { t } = useLanguage()
   const [categories, setCategories] = useState([])
   const [selectedCategory, setSelectedCategory] = useState(ALL_CATEGORY)
   const [posts, setPosts] = useState([])
@@ -176,7 +179,7 @@ export default function ArticleSection() {
 
   return (
     <div className="px-4 md:px-6 py-4">
-      <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Latest articles</h2>
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">{t('article.latestArticles')}</h2>
 
       {/* Desktop: tabs + search */}
       <div className="hidden md:flex items-center justify-between mb-6 bg-white dark:bg-gray-800 rounded-2xl px-4 py-2.5 border border-gray-100 dark:border-gray-700">
@@ -203,10 +206,10 @@ export default function ArticleSection() {
       <div className="md:hidden w-full flex flex-col gap-3 mb-6">
         <SearchBox className="w-full" />
         <div>
-          <p className="text-xs text-gray-400 dark:text-gray-500 mb-1.5">Category</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mb-1.5">{t('article.category')}</p>
           <Select value={selectedCategory} onValueChange={handleCategoryChange}>
             <SelectTrigger className="w-full py-3 rounded-sm text-gray-600 dark:text-gray-300">
-              <SelectValue placeholder="Select category" />
+              <SelectValue placeholder={t('article.selectCategoryPlaceholder')} />
             </SelectTrigger>
             <SelectContent>
               {[ALL_CATEGORY, ...categories].map(cat => (
@@ -237,7 +240,7 @@ export default function ArticleSection() {
       {isLoading && (
         <div className="flex flex-col items-center justify-center py-12 gap-3">
           <div className="w-10 h-10 border-2 border-gray-200 dark:border-gray-700 border-t-gray-800 dark:border-t-gray-300 rounded-full animate-spin" />
-          <span className="text-sm text-gray-500 dark:text-gray-400">Loading...</span>
+          <span className="text-sm text-gray-500 dark:text-gray-400">{t('article.loading')}</span>
         </div>
       )}
 
@@ -248,7 +251,7 @@ export default function ArticleSection() {
             onClick={handleLoadMore}
             className="text-sm text-gray-500 dark:text-gray-400 underline underline-offset-4 cursor-pointer hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
           >
-            View more
+            {t('article.viewMore')}
           </button>
         </div>
       )}

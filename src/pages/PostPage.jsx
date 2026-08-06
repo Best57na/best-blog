@@ -5,6 +5,7 @@ import ReactMarkdown from 'react-markdown'
 import { NavBar, Footer } from '../components/Sections'
 import { SmilePlus, Copy, X } from 'lucide-react'
 import { toast } from 'sonner'
+import { useLanguage } from '../lib/language'
 
 const formatDate = (isoDate) =>
   new Date(isoDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -30,19 +31,20 @@ const TwitterIcon = () => (
 )
 
 function AuthDialog({ onClose }) {
+  const { t } = useLanguage()
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
       <div className="bg-white dark:bg-gray-800 rounded-2xl px-10 py-10 max-w-sm w-full text-center relative">
         <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors cursor-pointer">
           <X size={20} />
         </button>
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 leading-snug">Create an account to continue</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 leading-snug">{t('post.authPromptTitle')}</h2>
         <Link to="/signup" className="block w-full py-3.5 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-full font-medium text-sm text-center cursor-pointer hover:bg-gray-700 dark:hover:bg-white transition-colors mb-4">
-          Create account
+          {t('post.createAccount')}
         </Link>
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          Already have an account?{' '}
-          <Link to="/login" className="underline font-medium text-gray-900 dark:text-gray-100">Log in</Link>
+          {t('auth.alreadyHaveAccount')}{' '}
+          <Link to="/login" className="underline font-medium text-gray-900 dark:text-gray-100">{t('auth.login')}</Link>
         </p>
       </div>
     </div>
@@ -62,6 +64,7 @@ function CommentAvatar({ name, avatar }) {
 }
 
 export default function PostPage() {
+  const { t } = useLanguage()
   const { postId } = useParams()
   const navigate = useNavigate()
 
@@ -133,16 +136,16 @@ export default function PostPage() {
 
     setComments(prev => [newComment, ...prev])
     setComment('')
-    toast.success('Comment posted!')
+    toast.success(t('post.commentPosted'))
   }
 
   const handleCopy = () => {
     navigator.clipboard.writeText(window.location.href)
-    toast.success('Copied!', { description: 'This article has been copied to your clipboard.' })
+    toast.success(t('post.copiedTitle'), { description: t('post.copiedDesc') })
   }
 
   if (loading) {
-    return <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center text-gray-400">Loading...</div>
+    return <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center text-gray-400">{t('post.loading')}</div>
   }
 
   if (!post) return null
@@ -154,7 +157,7 @@ export default function PostPage() {
       <NavBar />
       <main className="max-w-3xl mx-auto px-4 md:px-6 py-10">
         <button onClick={() => navigate(-1)} className="text-sm text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 mb-6 flex items-center gap-1 cursor-pointer transition-colors">
-          ← Back
+          {t('post.back')}
         </button>
 
         <span className="inline-block px-3 py-1 text-xs font-medium rounded-full mb-4" style={{ backgroundColor: '#D7F2E9', color: '#12B279' }}>
@@ -193,7 +196,7 @@ export default function PostPage() {
           <div className="flex items-center gap-2">
             <button onClick={handleCopy} className="flex items-center gap-2 px-4 py-2 rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-200 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
               <Copy size={15} />
-              Copy
+              {t('post.copy')}
             </button>
             <a href={`https://www.facebook.com/share.php?u=${encodeURIComponent(pageUrl)}`} target="_blank" rel="noopener noreferrer" className="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
               <FacebookIcon />
@@ -210,19 +213,19 @@ export default function PostPage() {
         {/* Comment section */}
         <div className="mb-10">
           <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">
-            Comment{comments.length > 0 && <span className="text-gray-400 dark:text-gray-500 font-normal text-base ml-1">({comments.length})</span>}
+            {t('post.comment')}{comments.length > 0 && <span className="text-gray-400 dark:text-gray-500 font-normal text-base ml-1">({comments.length})</span>}
           </h3>
 
           <textarea
             value={comment}
             onChange={e => setComment(e.target.value)}
-            placeholder="What are your thoughts?"
+            placeholder={t('post.commentPlaceholder')}
             rows={4}
             className="w-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-xl px-4 py-3 text-sm text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 resize-none focus:outline-none focus:ring-1 focus:ring-gray-300"
           />
           <div className="flex justify-end mt-3">
             <button onClick={handleSend} className="px-6 py-2.5 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-sm font-medium rounded-full cursor-pointer hover:bg-gray-700 dark:hover:bg-white transition-colors">
-              Send
+              {t('post.send')}
             </button>
           </div>
 
