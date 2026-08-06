@@ -1,27 +1,15 @@
-import { useState, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { toast } from 'sonner'
+import axios from 'axios'
 import { Search, Pencil, Trash2, X, Plus } from 'lucide-react'
+import { API_BASE } from '../../utils/api'
 
-const DEFAULT_CATEGORIES = [
-  { id: '1', name: 'Highlight', description: 'Featured and trending articles' },
-  { id: '2', name: 'Adventure', description: 'Travel adventures and explorations' },
-  { id: '3', name: 'Culture', description: 'Cultural experiences and traditions' },
-  { id: '4', name: 'Food', description: 'Local cuisine and food guides' },
-  { id: '5', name: 'Tips', description: 'Travel tips and recommendations' },
-]
-
-function getCategories() {
-  const stored = localStorage.getItem('adminCategories')
-  if (stored) return JSON.parse(stored)
-  localStorage.setItem('adminCategories', JSON.stringify(DEFAULT_CATEGORIES))
-  return DEFAULT_CATEGORIES
+function authHeaders() {
+  const token = localStorage.getItem('token')
+  return { Authorization: `Bearer ${token}` }
 }
 
-function saveCategories(cats) {
-  localStorage.setItem('adminCategories', JSON.stringify(cats))
-}
-
-function CategoryDialog({ title, form, errors, onChange, onClose, onSave, saveLabel }) {
+function CategoryDialog({ title, form, errors, onChange, onClose, onSave, saveLabel, isSaving }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
       <div className="bg-white rounded-2xl p-6 w-96 shadow-xl">
@@ -46,16 +34,6 @@ function CategoryDialog({ title, form, errors, onChange, onClose, onSave, saveLa
             />
             {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name}</p>}
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
-            <textarea
-              value={form.description}
-              onChange={e => onChange('description', e.target.value)}
-              placeholder="Category description"
-              rows={3}
-              className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-700 resize-none focus:outline-none focus:ring-1 focus:ring-gray-300 placeholder-gray-300"
-            />
-          </div>
         </div>
 
         <div className="flex gap-3 justify-end mt-6">
@@ -67,9 +45,10 @@ function CategoryDialog({ title, form, errors, onChange, onClose, onSave, saveLa
           </button>
           <button
             onClick={onSave}
-            className="px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-full hover:bg-gray-700 transition-colors cursor-pointer"
+            disabled={isSaving}
+            className="px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-full hover:bg-gray-700 transition-colors cursor-pointer disabled:opacity-50"
           >
-            {saveLabel}
+            {isSaving ? 'Saving…' : saveLabel}
           </button>
         </div>
       </div>
@@ -78,17 +57,29 @@ function CategoryDialog({ title, form, errors, onChange, onClose, onSave, saveLa
 }
 
 export default function CategoriesPage() {
-  const [categories, setCategories] = useState(getCategories)
+  const [categories, setCategories] = useState([])
+  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [confirmDeleteId, setConfirmDeleteId] = useState(null)
+  const [isSaving, setIsSaving] = useState(false)
 
   const [createOpen, setCreateOpen] = useState(false)
-  const [createForm, setCreateForm] = useState({ name: '', description: '' })
+  const [createForm, setCreateForm] = useState({ name: '' })
   const [createErrors, setCreateErrors] = useState({})
 
   const [editItem, setEditItem] = useState(null)
-  const [editForm, setEditForm] = useState({ name: '', description: '' })
+  const [editForm, setEditForm] = useState({ name: '' })
   const [editErrors, setEditErrors] = useState({})
+
+  const loadCategories = () => {
+    setLoading(true)
+    axios.get(`${API_BASE}/categories`)
+      .then(res => setCategories(res.data.categories || []))
+      .catch(() => toast.error('Failed to load categories'))
+      .finally(() => setLoading(false))
+  }
+
+  useEffect(() => { loadCategories() }, [])
 
   const filtered = useMemo(
     () => categories.filter(c => c.name.toLowerCase().includes(search.toLowerCase())),
@@ -97,58 +88,67 @@ export default function CategoriesPage() {
 
   // Create
   const openCreate = () => {
-    setCreateForm({ name: '', description: '' })
+    setCreateForm({ name: '' })
     setCreateErrors({})
     setCreateOpen(true)
   }
 
-  const saveCreate = () => {
+  const saveCreate = async () => {
     if (!createForm.name.trim()) {
       setCreateErrors({ name: 'Name is required' })
       return
     }
-    const newCat = {
-      id: Date.now().toString(),
-      name: createForm.name.trim(),
-      description: createForm.description.trim(),
+    setIsSaving(true)
+    try {
+      await axios.post(`${API_BASE}/categories`, { name: createForm.name.trim() }, { headers: authHeaders() })
+      setCreateOpen(false)
+      loadCategories()
+      toast.success('Category created successfully')
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to create category')
+    } finally {
+      setIsSaving(false)
     }
-    const updated = [...categories, newCat]
-    saveCategories(updated)
-    setCategories(updated)
-    setCreateOpen(false)
-    toast.success('Category created successfully')
   }
 
   // Edit
   const openEdit = (cat) => {
     setEditItem(cat)
-    setEditForm({ name: cat.name, description: cat.description })
+    setEditForm({ name: cat.name })
     setEditErrors({})
   }
 
-  const saveEdit = () => {
+  const saveEdit = async () => {
     if (!editForm.name.trim()) {
       setEditErrors({ name: 'Name is required' })
       return
     }
-    const updated = categories.map(c =>
-      c.id === editItem.id
-        ? { ...c, name: editForm.name.trim(), description: editForm.description.trim() }
-        : c
-    )
-    saveCategories(updated)
-    setCategories(updated)
-    setEditItem(null)
-    toast.success('Category updated successfully')
+    setIsSaving(true)
+    try {
+      await axios.put(`${API_BASE}/categories/${editItem.id}`, { name: editForm.name.trim() }, { headers: authHeaders() })
+      setEditItem(null)
+      loadCategories()
+      toast.success('Category updated successfully')
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to update category')
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   // Delete
-  const deleteCategory = (id) => {
-    const updated = categories.filter(c => c.id !== id)
-    saveCategories(updated)
-    setCategories(updated)
-    setConfirmDeleteId(null)
-    toast.success('Category deleted')
+  const deleteCategory = async (id) => {
+    setIsSaving(true)
+    try {
+      await axios.delete(`${API_BASE}/categories/${id}`, { headers: authHeaders() })
+      setConfirmDeleteId(null)
+      loadCategories()
+      toast.success('Category deleted')
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to delete category')
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   return (
@@ -183,14 +183,17 @@ export default function CategoriesPage() {
           <thead>
             <tr className="border-b border-gray-100">
               <th className="text-left px-4 py-3 text-xs font-medium text-gray-500">Category name</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-gray-500">Description</th>
               <th className="px-4 py-3 w-20" />
             </tr>
           </thead>
           <tbody>
-            {filtered.length === 0 ? (
+            {loading ? (
               <tr>
-                <td colSpan={3} className="text-center py-10 text-sm text-gray-400">No categories found</td>
+                <td colSpan={2} className="text-center py-10 text-sm text-gray-400">Loading...</td>
+              </tr>
+            ) : filtered.length === 0 ? (
+              <tr>
+                <td colSpan={2} className="text-center py-10 text-sm text-gray-400">No categories found</td>
               </tr>
             ) : (
               filtered.map(cat => (
@@ -203,7 +206,6 @@ export default function CategoriesPage() {
                       {cat.name}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-500">{cat.description}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1 justify-end">
                       <button
@@ -233,6 +235,7 @@ export default function CategoriesPage() {
           title="Create category"
           form={createForm}
           errors={createErrors}
+          isSaving={isSaving}
           onChange={(field, value) => {
             setCreateForm(prev => ({ ...prev, [field]: value }))
             if (field === 'name') setCreateErrors({})
@@ -249,6 +252,7 @@ export default function CategoriesPage() {
           title="Edit category"
           form={editForm}
           errors={editErrors}
+          isSaving={isSaving}
           onChange={(field, value) => {
             setEditForm(prev => ({ ...prev, [field]: value }))
             if (field === 'name') setEditErrors({})
@@ -276,9 +280,10 @@ export default function CategoriesPage() {
               </button>
               <button
                 onClick={() => deleteCategory(confirmDeleteId)}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-full hover:bg-red-600 transition-colors cursor-pointer"
+                disabled={isSaving}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-full hover:bg-red-600 transition-colors cursor-pointer disabled:opacity-50"
               >
-                Delete
+                {isSaving ? 'Deleting…' : 'Delete'}
               </button>
             </div>
           </div>

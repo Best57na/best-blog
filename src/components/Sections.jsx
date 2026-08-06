@@ -117,8 +117,8 @@ function UserMenu({ currentUser, onLogout }) {
         onClick={() => setOpen(v => !v)}
         className="w-9 h-9 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-gray-300 transition-all flex-shrink-0"
       >
-        {currentUser.avatar ? (
-          <img src={currentUser.avatar} alt="avatar" className="w-full h-full object-cover" />
+        {currentUser.profilePic ? (
+          <img src={currentUser.profilePic} alt="avatar" className="w-full h-full object-cover" />
         ) : initials ? (
           <span className="text-xs font-bold text-gray-600">{initials}</span>
         ) : (
