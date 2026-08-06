@@ -1,26 +1,115 @@
+import { useState, useEffect, useRef } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { Search } from 'lucide-react'
+import axios from 'axios'
 import { Input } from '@/components/ui/input'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
-import blogPosts from '@/data/blogPosts'
 
-const categories = ["Highlight", "Adventure", "Culture", "Food", "Tips"]
+const ALL_CATEGORY = "All"
 
-function BlogCard({ image, category, title, description, author, date }) {
+const API_URL = "https://best-blog-server.vercel.app/posts"
+const CATEGORIES_URL = "https://best-blog-server.vercel.app/categories"
+
+const formatDate = (isoDate) => {
+  return new Date(isoDate).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  })
+}
+
+function SearchBox({ className = '' }) {
+  const [query, setQuery] = useState('')
+  const [results, setResults] = useState([])
+  const [showDropdown, setShowDropdown] = useState(false)
+  const containerRef = useRef(null)
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (!query.trim()) {
+      setResults([])
+      setShowDropdown(false)
+      return
+    }
+    const timer = setTimeout(async () => {
+      const response = await axios.get(API_URL, { params: { keyword: query, limit: 10 } })
+      setResults(response.data.posts || [])
+      setShowDropdown(true)
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [query])
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setShowDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const handleSelect = (id) => {
+    setShowDropdown(false)
+    setQuery('')
+    navigate(`/post/${id}`)
+  }
+
+  return (
+    <div ref={containerRef} className={`relative ${className}`}>
+      <Input
+        placeholder="Search"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        onFocus={() => results.length > 0 && setShowDropdown(true)}
+        className="pr-8 rounded-full"
+      />
+      <Search size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+
+      {showDropdown && results.length === 0 && (
+        <div className="absolute top-full mt-2 left-0 right-0 bg-white border border-gray-100 rounded-2xl shadow-lg z-50 px-4 py-3 text-sm text-gray-400 text-center">
+          ไม่พบบทความที่ค้นหา
+        </div>
+      )}
+
+      {showDropdown && results.length > 0 && (
+        <ul className="absolute top-full mt-2 left-0 right-0 bg-white border border-gray-100 rounded-2xl shadow-lg z-50 overflow-hidden">
+          {results.map((post) => (
+            <li key={post.id}>
+              <button
+                onMouseDown={() => handleSelect(post.id)}
+                className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+              >
+                {post.title}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
+
+function BlogCard({ id, image, category, title, description, author, date }) {
   return (
     <div className="bg-white rounded-2xl overflow-hidden border border-gray-100">
-      <img
-        src={image}
-        alt={title}
-        className="w-full h-52 object-cover"
-      />
+      <Link to={`/post/${id}`}>
+        <img
+          src={image}
+          alt={title}
+          className="w-full h-52 object-cover hover:opacity-90 transition-opacity"
+        />
+      </Link>
       <div className="p-4">
         <span className="inline-block px-2.5 py-0.5 text-xs font-medium rounded-full mb-2"
           style={{ backgroundColor: '#D7F2E9', color: '#12B279' }}>
           {category}
         </span>
-        <h3 className="font-bold text-gray-900 text-sm leading-snug mb-2 line-clamp-2">
-          {title}
-        </h3>
+        <Link to={`/post/${id}`}>
+          <h3 className="font-bold text-gray-900 text-sm leading-snug mb-2 line-clamp-2 hover:underline">
+            {title}
+          </h3>
+        </Link>
         <p className="text-xs text-gray-400 leading-relaxed mb-3 line-clamp-2">
           {description}
         </p>
@@ -38,44 +127,89 @@ function BlogCard({ image, category, title, description, author, date }) {
 }
 
 export default function ArticleSection() {
+  const [categories, setCategories] = useState([])
+  const [selectedCategory, setSelectedCategory] = useState(ALL_CATEGORY)
+  const [posts, setPosts] = useState([])
+  const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    axios.get(CATEGORIES_URL)
+      .then((response) => setCategories((response.data.categories || []).map((c) => c.name)))
+      .catch((error) => console.error("Error fetching categories:", error))
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    const fetchPosts = async () => {
+      setIsLoading(true)
+      try {
+        const params = { page, limit: 6 }
+        if (selectedCategory !== ALL_CATEGORY) params.category = selectedCategory
+        const response = await axios.get(API_URL, { params })
+        if (!cancelled) {
+          setPosts((prev) => page === 1 ? response.data.posts : [...prev, ...response.data.posts])
+          setHasMore(response.data.currentPage < response.data.totalPages)
+        }
+      } catch (error) {
+        console.error("Error fetching posts:", error)
+      } finally {
+        if (!cancelled) setIsLoading(false)
+      }
+    }
+    fetchPosts()
+    return () => { cancelled = true }
+  }, [page, selectedCategory])
+
+  const handleCategoryChange = (cat) => {
+    if (cat === selectedCategory) return
+    setPosts([])
+    setHasMore(true)
+    setPage(1)
+    setSelectedCategory(cat)
+  }
+
+  const handleLoadMore = () => {
+    setPage((prev) => prev + 1)
+  }
+
   return (
     <div className="px-4 md:px-6 py-4">
       <h2 className="text-2xl font-bold text-gray-900 mb-4">Latest articles</h2>
 
       {/* Desktop: tabs + search */}
       <div className="hidden md:flex items-center justify-between mb-6 bg-white rounded-2xl px-4 py-2.5 border border-gray-100">
-        <div className="hidden md:flex space-x-2">
-          {categories.map((cat, i) => (
+        <div className="flex space-x-2">
+          {[ALL_CATEGORY, ...categories].map((cat) => (
             <button
               key={cat}
-              className={`px-4 py-3 transition-colors rounded-sm text-sm text-muted-foreground font-medium cursor-pointer ${
-                i === 0 ? 'bg-[#DAD6D1]' : ''
+              disabled={selectedCategory === cat}
+              onClick={() => handleCategoryChange(cat)}
+              className={`px-4 py-3 transition-colors rounded-sm text-sm text-muted-foreground font-medium ${
+                selectedCategory === cat
+                  ? 'bg-[#DAD6D1] cursor-not-allowed'
+                  : 'cursor-pointer hover:bg-[#EFEEEB]'
               }`}
             >
               {cat}
             </button>
           ))}
         </div>
-        <div className="relative">
-          <Input placeholder="Search" className="w-48 pr-8 rounded-full" />
-          <Search size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-        </div>
+        <SearchBox className="w-56" />
       </div>
 
       {/* Mobile: search + select */}
       <div className="md:hidden w-full flex flex-col gap-3 mb-6">
-        <div className="relative">
-          <Input placeholder="Search" className="pr-10 rounded-full" />
-          <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-        </div>
+        <SearchBox className="w-full" />
         <div>
           <p className="text-xs text-gray-400 mb-1.5">Category</p>
-          <Select defaultValue="Highlight">
+          <Select value={selectedCategory} onValueChange={handleCategoryChange}>
             <SelectTrigger className="w-full py-3 rounded-sm text-muted-foreground">
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
             <SelectContent>
-              {categories.map(cat => (
+              {[ALL_CATEGORY, ...categories].map(cat => (
                 <SelectItem key={cat} value={cat}>{cat}</SelectItem>
               ))}
             </SelectContent>
@@ -85,25 +219,39 @@ export default function ArticleSection() {
 
       {/* Article grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {blogPosts.map(article => (
+        {posts.map(article => (
           <BlogCard
             key={article.id}
+            id={article.id}
             image={article.image}
             category={article.category}
             title={article.title}
             description={article.description}
             author={article.author}
-            date={article.date}
+            date={formatDate(article.date)}
           />
         ))}
       </div>
 
+      {/* Loading spinner */}
+      {isLoading && (
+        <div className="flex flex-col items-center justify-center py-12 gap-3">
+          <div className="w-10 h-10 border-2 border-gray-200 border-t-gray-800 rounded-full animate-spin" />
+          <span className="text-sm text-gray-500">Loading...</span>
+        </div>
+      )}
+
       {/* View more */}
-      <div className="text-center mt-8 mb-4">
-        <button className="text-sm text-gray-500 underline underline-offset-4 cursor-pointer hover:text-gray-900 transition-colors">
-          View more
-        </button>
-      </div>
+      {hasMore && !isLoading && (
+        <div className="text-center mt-8 mb-4">
+          <button
+            onClick={handleLoadMore}
+            className="text-sm text-gray-500 underline underline-offset-4 cursor-pointer hover:text-gray-900 transition-colors"
+          >
+            View more
+          </button>
+        </div>
+      )}
     </div>
   )
 }
