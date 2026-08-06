@@ -8,6 +8,7 @@ import PostPage from './pages/PostPage'
 import SignUpPage from './pages/SignUpPage'
 import LoginPage from './pages/LoginPage'
 import NotFoundPage from './pages/NotFoundPage'
+import AITravelSuitePage from './pages/AITravelSuitePage'
 import AdminLayout from './pages/admin/AdminLayout'
 import ArticlesPage from './pages/admin/ArticlesPage'
 import CategoriesPage from './pages/admin/CategoriesPage'
@@ -38,6 +39,7 @@ function App() {
         <Route path="/post/:postId" element={<PostPage />} />
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/ai-travel-suite" element={<AITravelSuitePage />} />
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Navigate to="/admin/articles" replace />} />
           <Route path="articles" element={<ArticlesPage />} />
