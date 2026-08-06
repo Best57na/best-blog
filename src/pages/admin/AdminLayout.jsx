@@ -40,7 +40,7 @@ export default function AdminLayout() {
     <div className="flex min-h-screen bg-gray-200">
       <aside className="w-44 shrink-0 sticky top-0 h-screen bg-white flex flex-col px-4 py-6 overflow-y-auto">
         <div className="mb-8 px-1">
-          <p className="text-2xl font-bold text-gray-900 leading-none">hh.</p>
+          <p className="text-2xl font-bold text-gray-900 leading-none">bb.</p>
           <p className="text-xs font-medium mt-0.5" style={{ color: '#F97316' }}>Admin panel</p>
         </div>
 
@@ -58,7 +58,7 @@ export default function AdminLayout() {
             className="flex items-center gap-2.5 px-3 py-2.5 text-[13px] text-gray-500 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
           >
             <ExternalLink size={16} />
-            hh. website
+            bb. website
           </a>
           <button
             onClick={handleLogout}

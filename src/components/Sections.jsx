@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Bell, User, Mail, X, Globe } from 'lucide-react'
 import myPic from '../assets/My pic.jpg'
-import logo from '../assets/logo.png'
+import logo from '../assets/logo.svg'
 
 const DEMO_NOTIFICATIONS = [
   { id: 1, title: 'Welcome to the admin panel', message: 'Start managing your articles and profile settings.', read: false, link: '/admin/profile' },

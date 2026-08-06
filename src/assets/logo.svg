@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 132 40" fill="none">
+  <path
+    d="M20,5 L22.30,14.54 L35.56,4.44 L25.54,17.70 L35,20 L25.54,22.30 L30.61,30.61 L22.30,25.54 L20,35 L17.70,25.54 L9.39,30.61 L14.46,22.30 L5,20 L14.46,17.70 L9.39,9.39 L17.70,14.54 Z"
+    fill="#1B2A41"
+  />
+  <text x="48" y="29" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="28" fill="#1B2A41">bb</text>
+  <circle cx="90" cy="26.5" r="3.4" fill="#F97316" />
+</svg>
