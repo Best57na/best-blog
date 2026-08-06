@@ -4,7 +4,7 @@ import { toast } from 'sonner'
 import {
   Sparkles, Plane, Luggage, Wallet, Camera, MessageCircle,
   Copy, Check, CloudRain, MapPin, UtensilsCrossed, ExternalLink, Wand2,
-  Route as RouteIcon, Hotel, X, Plus,
+  Route as RouteIcon, Hotel, X, Plus, Download, Share2,
 } from 'lucide-react'
 import { NavBar, Footer } from '../components/Sections'
 import { API_BASE } from '../utils/api'
@@ -12,6 +12,7 @@ import { API_BASE } from '../utils/api'
 const FORM_KEY = 'ai_travel_suite_form'
 const RESULT_KEY = 'ai_travel_suite_result'
 const CHECKLIST_KEY = 'ai_travel_suite_checklist'
+const PACKING_KEY = 'ai_travel_suite_packing'
 
 const STYLES = ['Backpacker', 'Mid-range', 'Luxury']
 const ACTIVITIES = [
@@ -37,25 +38,6 @@ const TABS = [
   { id: 'spots', label: 'Spots & Food', icon: Camera },
   { id: 'captions', label: 'Captions', icon: MessageCircle },
 ]
-
-const PACKING_LIST = {
-  Clothing: [
-    { item: 'เสื้อกันหนาว', affiliate: 'ซื้อบน Shopee' },
-    { item: 'เสื้อยืด 4-5 ตัว' },
-    { item: 'กางเกงขายาว' },
-    { item: 'รองเท้าผ้าใบ' },
-  ],
-  Gadgets: [
-    { item: 'หัวแปลงปลั๊กไฟ', affiliate: 'ซื้อบน Lazada' },
-    { item: 'พาวเวอร์แบงค์' },
-    { item: 'สายชาร์จ + ที่ชาร์จ' },
-  ],
-  Documents: [
-    { item: 'พาสพอร์ต (เช็กอายุเหลือ 6 เดือน+)' },
-    { item: 'ตั๋วเครื่องบิน / ใบจองที่พัก' },
-    { item: 'ประกันการเดินทาง' },
-  ],
-}
 
 function loadJSON(key, fallback) {
   try {
@@ -226,20 +208,6 @@ function LoadingStatus({ message }) {
   )
 }
 
-function AffiliateLink({ children, href = '#' }) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="inline-flex items-center gap-1 text-xs font-medium text-sky-600 dark:text-sky-400 hover:underline"
-    >
-      {children}
-      <ExternalLink size={11} />
-    </a>
-  )
-}
-
 function FlightsTab({ result }) {
   return (
     <div className="flex flex-col gap-5">
@@ -311,7 +279,42 @@ function AccommodationTab({ result }) {
   )
 }
 
-function PackingTab({ result, checklist, toggleChecked }) {
+function PackingTab({ result, packingList, setPackingList, checklist, setChecklist, toggleChecked }) {
+  const [newItemInputs, setNewItemInputs] = useState({})
+  const [newCategoryName, setNewCategoryName] = useState('')
+
+  const addItem = (category) => {
+    const text = (newItemInputs[category] || '').trim()
+    if (!text) return
+    setPackingList(prev => prev.map(cat => cat.category === category ? { ...cat, items: [...cat.items, text] } : cat))
+    setNewItemInputs(prev => ({ ...prev, [category]: '' }))
+  }
+
+  const removeItem = (category, item) => {
+    setPackingList(prev => prev.map(cat => cat.category === category ? { ...cat, items: cat.items.filter(i => i !== item) } : cat))
+    setChecklist(prev => {
+      const next = { ...prev }
+      delete next[`${category}:${item}`]
+      return next
+    })
+  }
+
+  const addCategory = () => {
+    const trimmed = newCategoryName.trim()
+    if (!trimmed) return
+    setPackingList(prev => prev.some(c => c.category === trimmed) ? prev : [...prev, { category: trimmed, items: [] }])
+    setNewCategoryName('')
+  }
+
+  const removeCategory = (category) => {
+    setPackingList(prev => prev.filter(c => c.category !== category))
+    setChecklist(prev => {
+      const next = { ...prev }
+      Object.keys(next).forEach(key => { if (key.startsWith(`${category}:`)) delete next[key] })
+      return next
+    })
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center gap-3 bg-sky-50 dark:bg-sky-500/10 rounded-xl p-4">
@@ -319,15 +322,25 @@ function PackingTab({ result, checklist, toggleChecked }) {
         <p className="text-sm text-gray-700 dark:text-gray-200">{result.weather}</p>
       </div>
 
-      {Object.entries(PACKING_LIST).map(([category, items]) => (
+      {packingList.map(({ category, items }) => (
         <div key={category}>
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2.5">{category}</h3>
+          <div className="flex items-center justify-between mb-2.5">
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{category}</h3>
+            <button
+              type="button"
+              onClick={() => removeCategory(category)}
+              title="Remove category"
+              className="text-gray-300 dark:text-gray-600 hover:text-red-500 dark:hover:text-red-400 cursor-pointer"
+            >
+              <X size={14} />
+            </button>
+          </div>
           <div className="flex flex-col gap-2">
-            {items.map(({ item, affiliate }) => {
+            {items.map(item => {
               const key = `${category}:${item}`
               return (
-                <label key={key} className="flex items-center justify-between gap-3 px-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer">
-                  <span className="flex items-center gap-2.5">
+                <div key={key} className="flex items-center justify-between gap-3 px-4 py-2.5 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                  <label className="flex items-center gap-2.5 flex-1 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={!!checklist[key]}
@@ -337,14 +350,57 @@ function PackingTab({ result, checklist, toggleChecked }) {
                     <span className={`text-sm ${checklist[key] ? 'line-through text-gray-400 dark:text-gray-500' : 'text-gray-700 dark:text-gray-200'}`}>
                       {item}
                     </span>
-                  </span>
-                  {affiliate && <AffiliateLink>{affiliate}</AffiliateLink>}
-                </label>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => removeItem(category, item)}
+                    className="text-gray-300 dark:text-gray-600 hover:text-red-500 dark:hover:text-red-400 cursor-pointer flex-shrink-0"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
               )
             })}
           </div>
+          <div className="flex items-center gap-2 mt-2">
+            <input
+              type="text"
+              value={newItemInputs[category] || ''}
+              onChange={e => setNewItemInputs(prev => ({ ...prev, [category]: e.target.value }))}
+              onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addItem(category) } }}
+              placeholder={`Add item to ${category}…`}
+              className="flex-1 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg px-3 py-1.5 text-xs text-gray-700 dark:text-gray-100 placeholder-gray-300 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:focus:ring-sky-500/30 transition-colors"
+            />
+            <button
+              type="button"
+              onClick={() => addItem(category)}
+              disabled={!(newItemInputs[category] || '').trim()}
+              className="p-1.5 rounded-lg border border-sky-500 text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-500/10 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <Plus size={14} />
+            </button>
+          </div>
         </div>
       ))}
+
+      <div className="flex items-center gap-2 pt-4 border-t border-gray-100 dark:border-gray-700">
+        <input
+          type="text"
+          value={newCategoryName}
+          onChange={e => setNewCategoryName(e.target.value)}
+          onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addCategory() } }}
+          placeholder="Add a new category…"
+          className="flex-1 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg px-4 py-2 text-sm text-gray-700 dark:text-gray-100 placeholder-gray-300 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:focus:ring-sky-500/30 transition-colors"
+        />
+        <button
+          type="button"
+          onClick={addCategory}
+          disabled={!newCategoryName.trim()}
+          className="flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-semibold border border-sky-500 text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-500/10 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          <Plus size={14} /> Add category
+        </button>
+      </div>
     </div>
   )
 }
@@ -461,9 +517,54 @@ function loadPersistedResult() {
   return stored && Array.isArray(stored.route) && Array.isArray(stored.accommodation) ? stored : null
 }
 
+function formatPlanAsText(result, packingList) {
+  const lines = [`แผนเดินทาง: ${result.destination}`, '']
+
+  if (result.needsFlight && result.flights) {
+    lines.push(`✈️ เที่ยวบิน: ${result.flights.duration} (${result.flights.priceRange})`)
+  }
+  lines.push(`🌤️ สภาพอากาศ: ${result.weather}`, '')
+
+  lines.push('🗺️ เส้นทางการเดินทาง:')
+  result.route.forEach((step, i) => lines.push(`${i + 1}. ${step.title} — ${step.desc}`))
+  lines.push('')
+
+  lines.push('🏨 ที่พักแนะนำ:')
+  result.accommodation.forEach(stay => lines.push(`- ${stay.name} (${stay.area}) ${stay.priceRange}`))
+  lines.push('')
+
+  lines.push(`💰 งบประมาณรวม: ${result.budget.total}`)
+  result.budget.breakdown.forEach(row => lines.push(`  - ${row.label}: ${row.amount} (${row.percent}%)`))
+  lines.push('')
+
+  lines.push('📸 จุดถ่ายรูปแนะนำ:')
+  result.spots.forEach(s => lines.push(`- ${s.name}: ${s.desc}`))
+  lines.push('')
+
+  lines.push('🍜 ของกินแนะนำ:')
+  result.food.forEach(f => lines.push(`- ${f.name}: ${f.desc}`))
+  lines.push('')
+
+  if (packingList && packingList.length > 0) {
+    lines.push('🎒 ของที่ต้องแพ็ก:')
+    packingList.forEach(cat => {
+      lines.push(`${cat.category}:`)
+      cat.items.forEach(item => lines.push(`  - ${item}`))
+    })
+    lines.push('')
+  }
+
+  lines.push('📝 แคปชันแนะนำ:')
+  result.captions.forEach(c => lines.push(`- ${c}`))
+  lines.push('', 'สร้างโดย AI Travel Suite')
+
+  return lines.join('\n')
+}
+
 export default function AITravelSuitePage() {
   const [form, setForm] = useState(() => loadJSON(FORM_KEY, { origin: '', destination: '', dates: '', style: 'Mid-range', activities: [] }))
   const [result, setResult] = useState(loadPersistedResult)
+  const [packingList, setPackingList] = useState(() => loadJSON(PACKING_KEY, []))
   const [checklist, setChecklist] = useState(() => loadJSON(CHECKLIST_KEY, {}))
   const [isLoading, setIsLoading] = useState(false)
   const [loadingMessage, setLoadingMessage] = useState(LOADING_MESSAGES[0])
@@ -480,6 +581,10 @@ export default function AITravelSuitePage() {
   useEffect(() => {
     if (result) localStorage.setItem(RESULT_KEY, JSON.stringify(result))
   }, [result])
+
+  useEffect(() => {
+    localStorage.setItem(PACKING_KEY, JSON.stringify(packingList))
+  }, [packingList])
 
   useEffect(() => {
     localStorage.setItem(CHECKLIST_KEY, JSON.stringify(checklist))
@@ -513,6 +618,8 @@ export default function AITravelSuitePage() {
         activities: form.activities,
       })
       setResult(response.data.plan)
+      setPackingList(response.data.plan.packing || [])
+      setChecklist({})
       setActiveTab(response.data.plan.needsFlight ? 'flights' : 'route')
     } catch (error) {
       toast.error(error.response?.data?.message || 'สร้างแผนการเดินทางไม่สำเร็จ ลองใหม่อีกครั้ง')
@@ -525,9 +632,43 @@ export default function AITravelSuitePage() {
 
   const handleNewPlan = () => {
     setResult(null)
+    setPackingList([])
     setChecklist({})
     localStorage.removeItem(RESULT_KEY)
+    localStorage.removeItem(PACKING_KEY)
     localStorage.removeItem(CHECKLIST_KEY)
+  }
+
+  const handleSavePlan = () => {
+    const text = formatPlanAsText(result, packingList)
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `travel-plan-${result.destination.replace(/[^\p{L}\p{N}]+/gu, '-')}.txt`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    toast.success('บันทึกแผนการเดินทางแล้ว')
+  }
+
+  const handleSharePlan = async () => {
+    const text = formatPlanAsText(result, packingList)
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: `แผนเที่ยว ${result.destination}`, text })
+      } catch {
+        // user cancelled the native share sheet
+      }
+      return
+    }
+    try {
+      await navigator.clipboard.writeText(text)
+      toast.success('คัดลอกแผนการเดินทางไปยังคลิปบอร์ดแล้ว')
+    } catch {
+      toast.error('ไม่สามารถคัดลอกแผนการเดินทางได้')
+    }
   }
 
   return (
@@ -540,7 +681,7 @@ export default function AITravelSuitePage() {
 
         {result && !isLoading && (
           <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden">
-            <div className="flex items-center justify-between px-4 md:px-6 pt-5">
+            <div className="flex items-center justify-between gap-2 px-4 md:px-6 pt-5">
               <div className="flex gap-1 overflow-x-auto no-scrollbar">
                 {TABS.filter(tab => tab.id !== 'flights' || result.needsFlight).map(tab => {
                   const Icon = tab.icon
@@ -560,13 +701,38 @@ export default function AITravelSuitePage() {
                   )
                 })}
               </div>
+              <div className="flex items-center gap-1 flex-shrink-0">
+                <button
+                  onClick={handleSavePlan}
+                  title="Save plan"
+                  className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-sky-600 dark:hover:text-sky-400 transition-colors cursor-pointer"
+                >
+                  <Download size={16} />
+                </button>
+                <button
+                  onClick={handleSharePlan}
+                  title="Share plan"
+                  className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-sky-600 dark:hover:text-sky-400 transition-colors cursor-pointer"
+                >
+                  <Share2 size={16} />
+                </button>
+              </div>
             </div>
 
             <div className="p-4 md:p-6">
               {activeTab === 'flights' && result.needsFlight && <FlightsTab result={result} />}
               {activeTab === 'route' && <RouteTab result={result} />}
               {activeTab === 'accommodation' && <AccommodationTab result={result} />}
-              {activeTab === 'packing' && <PackingTab result={result} checklist={checklist} toggleChecked={toggleChecked} />}
+              {activeTab === 'packing' && (
+                <PackingTab
+                  result={result}
+                  packingList={packingList}
+                  setPackingList={setPackingList}
+                  checklist={checklist}
+                  setChecklist={setChecklist}
+                  toggleChecked={toggleChecked}
+                />
+              )}
               {activeTab === 'budget' && <BudgetTab result={result} />}
               {activeTab === 'spots' && <SpotsFoodTab result={result} />}
               {activeTab === 'captions' && <CaptionsTab result={result} />}
