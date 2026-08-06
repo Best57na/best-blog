@@ -1,9 +1,12 @@
 import { useState, useEffect, useRef } from 'react'
+import axios from 'axios'
+import { toast } from 'sonner'
 import {
   Sparkles, Plane, Luggage, Wallet, Camera, MessageCircle,
   Copy, Check, CloudRain, MapPin, UtensilsCrossed, ExternalLink, Wand2,
 } from 'lucide-react'
 import { NavBar, Footer } from '../components/Sections'
+import { API_BASE } from '../utils/api'
 
 const FORM_KEY = 'ai_travel_suite_form'
 const RESULT_KEY = 'ai_travel_suite_result'
@@ -45,65 +48,6 @@ const PACKING_LIST = {
     { item: 'ตั๋วเครื่องบิน / ใบจองที่พัก' },
     { item: 'ประกันการเดินทาง' },
   ],
-}
-
-const BUDGET_BY_STYLE = {
-  Backpacker: {
-    total: '฿12,000 - 18,000',
-    breakdown: [
-      { label: 'ที่พัก', percent: 30, amount: '฿4,500' },
-      { label: 'อาหาร', percent: 30, amount: '฿4,500' },
-      { label: 'เดินทาง', percent: 25, amount: '฿3,700' },
-      { label: 'ช้อปปิ้ง', percent: 15, amount: '฿2,300' },
-    ],
-  },
-  'Mid-range': {
-    total: '฿25,000 - 35,000',
-    breakdown: [
-      { label: 'ที่พัก', percent: 40, amount: '฿12,000' },
-      { label: 'อาหาร', percent: 25, amount: '฿7,500' },
-      { label: 'เดินทาง', percent: 20, amount: '฿6,000' },
-      { label: 'ช้อปปิ้ง', percent: 15, amount: '฿4,500' },
-    ],
-  },
-  Luxury: {
-    total: '฿60,000 - 90,000',
-    breakdown: [
-      { label: 'ที่พัก', percent: 55, amount: '฿41,000' },
-      { label: 'อาหาร', percent: 20, amount: '฿15,000' },
-      { label: 'เดินทาง', percent: 15, amount: '฿11,000' },
-      { label: 'ช้อปปิ้ง', percent: 10, amount: '฿7,500' },
-    ],
-  },
-}
-
-function generateMockResult(form) {
-  const dest = form.destination.trim() || 'จุดหมายของคุณ'
-  return {
-    destination: dest,
-    generatedAt: new Date().toISOString(),
-    flights: {
-      duration: '6h 30m (บินตรง)',
-      priceRange: '฿12,000 - 18,000',
-    },
-    weather: 'อุณหภูมิเฉลี่ย 10-15°C มีฝนเล็กน้อยช่วงบ่าย',
-    budget: BUDGET_BY_STYLE[form.style] || BUDGET_BY_STYLE['Mid-range'],
-    spots: [
-      { name: `จุดชมวิวใจกลาง ${dest}`, desc: 'มุมถ่ายรูปยอดนิยม เหมาะช่วงเช้าตรู่หรือโกลเด้นอาวร์' },
-      { name: `ตลาดเช้า ${dest}`, desc: 'บรรยากาศท้องถิ่น ราคาย่อมเยา ของกินสดใหม่' },
-      { name: `ย่านเมืองเก่า ${dest}`, desc: 'สถาปัตยกรรมดั้งเดิม เดินเล่นถ่ายรูปได้ทั้งวัน' },
-    ],
-    food: [
-      { name: 'เมนูขึ้นชื่อประจำท้องถิ่น', desc: 'ต้องลองอย่างน้อยหนึ่งครั้งตอนไป' },
-      { name: 'ของหวานริมทาง', desc: 'หาซื้อง่ายตามตลาดกลางคืน' },
-      { name: 'ร้านกาแฟมุมสวย', desc: 'เหมาะกับสาย cafe hopping' },
-    ],
-    captions: [
-      `หลงทาง...แต่ก็หลงรัก ${dest} 🧡 #${dest.replace(/\s+/g, '')} #TravelDiary`,
-      `ทริปนี้จดจำไปอีกนาน ✈️ ${dest} คือคำตอบ #WanderlustTH #${dest.replace(/\s+/g, '')}`,
-      `เก็บทุกวินาทีที่ ${dest} ไว้ในกล้องและในใจ 📸 #TravelWithMe #${dest.replace(/\s+/g, '')}`,
-    ],
-  }
 }
 
 function loadJSON(key, fallback) {
@@ -438,24 +382,35 @@ export default function AITravelSuitePage() {
     setChecklist(prev => ({ ...prev, [key]: !prev[key] }))
   }
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     if (!form.destination.trim() || isLoading) return
     setIsLoading(true)
     setResult(null)
+    setLoadingMessage(LOADING_MESSAGES[0])
 
-    LOADING_MESSAGES.forEach((msg, i) => {
-      const t = setTimeout(() => setLoadingMessage(msg), i * 1500)
-      timers.current.push(t)
-    })
+    let messageIndex = 0
+    const rotation = setInterval(() => {
+      messageIndex = (messageIndex + 1) % LOADING_MESSAGES.length
+      setLoadingMessage(LOADING_MESSAGES[messageIndex])
+    }, 1500)
+    timers.current.push(rotation)
 
-    const finishTimer = setTimeout(() => {
-      const newResult = generateMockResult(form)
-      setResult(newResult)
-      setIsLoading(false)
+    try {
+      const response = await axios.post(`${API_BASE}/ai/travel-plan`, {
+        destination: form.destination,
+        dates: form.dates,
+        style: form.style,
+        activities: form.activities,
+      })
+      setResult(response.data.plan)
       setActiveTab('flights')
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'สร้างแผนการเดินทางไม่สำเร็จ ลองใหม่อีกครั้ง')
+    } finally {
+      clearInterval(rotation)
+      setIsLoading(false)
       setLoadingMessage(LOADING_MESSAGES[0])
-    }, LOADING_MESSAGES.length * 1500)
-    timers.current.push(finishTimer)
+    }
   }
 
   const handleNewPlan = () => {
