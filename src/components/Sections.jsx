@@ -144,14 +144,9 @@ function UserMenu({ currentUser, onLogout }) {
             Admin panel
           </button>
           <button onClick={toggleTheme}
-            className="w-full flex items-center justify-between text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer">
-            <span className="flex items-center gap-2">
-              {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
-              Dark mode
-            </span>
-            <span className={`relative w-8 h-4.5 rounded-full transition-colors ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-200'}`}>
-              <span className={`absolute top-0.5 w-3.5 h-3.5 rounded-full bg-white transition-transform ${theme === 'dark' ? 'translate-x-4' : 'translate-x-0.5'}`} />
-            </span>
+            className="w-full flex items-center gap-2 text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer">
+            {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+            Dark mode
           </button>
           <div className="my-1 border-t border-gray-100 dark:border-gray-700" />
           <button onClick={() => { onLogout(); setOpen(false) }}

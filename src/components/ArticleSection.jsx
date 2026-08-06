@@ -186,7 +186,7 @@ export default function ArticleSection() {
               key={cat}
               disabled={selectedCategory === cat}
               onClick={() => handleCategoryChange(cat)}
-              className={`px-4 py-3 transition-colors rounded-sm text-sm text-muted-foreground font-medium ${
+              className={`px-4 py-3 transition-colors rounded-sm text-sm text-gray-600 dark:text-gray-300 font-medium ${
                 selectedCategory === cat
                   ? 'bg-[#DAD6D1] dark:bg-gray-600 cursor-not-allowed'
                   : 'cursor-pointer hover:bg-[#EFEEEB] dark:hover:bg-gray-700'
@@ -205,7 +205,7 @@ export default function ArticleSection() {
         <div>
           <p className="text-xs text-gray-400 dark:text-gray-500 mb-1.5">Category</p>
           <Select value={selectedCategory} onValueChange={handleCategoryChange}>
-            <SelectTrigger className="w-full py-3 rounded-sm text-muted-foreground">
+            <SelectTrigger className="w-full py-3 rounded-sm text-gray-600 dark:text-gray-300">
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
             <SelectContent>
