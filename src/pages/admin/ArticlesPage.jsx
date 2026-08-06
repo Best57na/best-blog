@@ -3,19 +3,10 @@ import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
 import axios from 'axios'
 import { Pencil, Trash2, Plus, Search, ChevronDown } from 'lucide-react'
-
-const API_URL = 'https://best-blog-server.vercel.app/posts'
-
-export function getAdminArticles() {
-  return JSON.parse(localStorage.getItem('adminArticles') || 'null')
-}
-
-export function saveAdminArticles(articles) {
-  localStorage.setItem('adminArticles', JSON.stringify(articles))
-}
+import { API_BASE } from '../../utils/api'
 
 function StatusBadge({ status }) {
-  return status === 'published' ? (
+  return status === 'publish' ? (
     <span className="flex items-center gap-1.5 text-sm text-green-600 font-medium">
       <span className="w-1.5 h-1.5 bg-green-500 rounded-full flex-shrink-0" />
       Published
@@ -50,34 +41,17 @@ export default function ArticlesPage() {
   const [statusFilter, setStatusFilter] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('')
   const [confirmDeleteId, setConfirmDeleteId] = useState(null)
+  const [isDeleting, setIsDeleting] = useState(false)
 
-  useEffect(() => {
-    const stored = getAdminArticles()
-    if (stored) {
-      setArticles(stored)
-      setLoading(false)
-      return
-    }
-    // First load: seed from API
-    axios.get(API_URL, { params: { limit: 6 } })
-      .then(res => {
-        const seeded = (res.data.posts || []).map((p, i) => ({
-          id: p.id,
-          title: p.title,
-          category: p.category,
-          description: p.description,
-          content: p.content,
-          image: p.image,
-          author: p.author,
-          date: p.date,
-          status: i === 1 ? 'draft' : 'published',
-        }))
-        saveAdminArticles(seeded)
-        setArticles(seeded)
-      })
-      .catch(console.error)
+  const loadArticles = () => {
+    setLoading(true)
+    axios.get(`${API_BASE}/posts`, { params: { limit: 100 } })
+      .then(res => setArticles(res.data.posts || []))
+      .catch(() => toast.error('Failed to load articles'))
       .finally(() => setLoading(false))
-  }, [])
+  }
+
+  useEffect(() => { loadArticles() }, [])
 
   const categories = useMemo(
     () => [...new Set(articles.map(a => a.category))].sort(),
@@ -94,12 +68,21 @@ export default function ArticlesPage() {
     [articles, search, statusFilter, categoryFilter]
   )
 
-  const deleteArticle = (id) => {
-    const updated = articles.filter(a => a.id !== id)
-    saveAdminArticles(updated)
-    setArticles(updated)
-    setConfirmDeleteId(null)
-    toast.success('Article deleted')
+  const deleteArticle = async (id) => {
+    setIsDeleting(true)
+    try {
+      const token = localStorage.getItem('token')
+      await axios.delete(`${API_BASE}/posts/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      setArticles(prev => prev.filter(a => a.id !== id))
+      toast.success('Article deleted')
+    } catch {
+      toast.error('Failed to delete article')
+    } finally {
+      setIsDeleting(false)
+      setConfirmDeleteId(null)
+    }
   }
 
   return (
@@ -130,7 +113,7 @@ export default function ArticlesPage() {
 
           <SelectFilter value={statusFilter} onChange={setStatusFilter}>
             <option value="">Status</option>
-            <option value="published">Published</option>
+            <option value="publish">Published</option>
             <option value="draft">Draft</option>
           </SelectFilter>
 
@@ -207,9 +190,10 @@ export default function ArticlesPage() {
               </button>
               <button
                 onClick={() => deleteArticle(confirmDeleteId)}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-full hover:bg-red-600 transition-colors cursor-pointer"
+                disabled={isDeleting}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-full hover:bg-red-600 transition-colors cursor-pointer disabled:opacity-50"
               >
-                Delete
+                {isDeleting ? 'Deleting…' : 'Delete'}
               </button>
             </div>
           </div>

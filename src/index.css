@@ -18,7 +18,7 @@
   font-display: swap;
 }
 
-@theme {
+:root {
   --font-roboto: 'Roboto', sans-serif;
 
   --color-brown-600: #26231E;

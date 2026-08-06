@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
+import axios from 'axios'
 import { X } from 'lucide-react'
+import { API_BASE } from '../../utils/api'
 
-function ConfirmDialog({ onConfirm, onCancel }) {
+function ConfirmDialog({ onConfirm, onCancel, isLoading }) {
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl p-8 max-w-sm w-full text-center relative">
@@ -23,9 +25,10 @@ function ConfirmDialog({ onConfirm, onCancel }) {
           </button>
           <button
             onClick={onConfirm}
-            className="px-6 py-2.5 bg-gray-900 text-white rounded-full text-sm font-medium hover:bg-gray-700 transition-colors cursor-pointer"
+            disabled={isLoading}
+            className="px-6 py-2.5 bg-gray-900 text-white rounded-full text-sm font-medium hover:bg-gray-700 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Reset
+            {isLoading ? 'Resetting…' : 'Reset'}
           </button>
         </div>
       </div>
@@ -37,6 +40,7 @@ export default function ResetPasswordPage() {
   const [form, setForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' })
   const [errors, setErrors] = useState({})
   const [showDialog, setShowDialog] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -45,13 +49,10 @@ export default function ResetPasswordPage() {
   }
 
   const validate = () => {
-    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}')
     const newErrors = {}
 
     if (!form.currentPassword) {
       newErrors.currentPassword = 'Current password is required'
-    } else if (form.currentPassword !== currentUser.password) {
-      newErrors.currentPassword = 'Current password is incorrect'
     }
 
     if (!form.newPassword) {
@@ -79,20 +80,28 @@ export default function ResetPasswordPage() {
     setShowDialog(true)
   }
 
-  const handleConfirm = () => {
-    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}')
-    const updatedUser = { ...currentUser, password: form.newPassword }
+  const handleConfirm = async () => {
+    setIsLoading(true)
+    try {
+      const token = localStorage.getItem('token')
+      await axios.put(`${API_BASE}/auth/reset-password`, {
+        oldPassword: form.currentPassword,
+        newPassword: form.newPassword,
+      }, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
 
-    const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]')
-    localStorage.setItem(
-      'registeredUsers',
-      JSON.stringify(users.map(u => u.email === currentUser.email ? updatedUser : u))
-    )
-    localStorage.setItem('currentUser', JSON.stringify(updatedUser))
-
-    setShowDialog(false)
-    setForm({ currentPassword: '', newPassword: '', confirmPassword: '' })
-    toast.success('Password changed successfully')
+      setShowDialog(false)
+      setForm({ currentPassword: '', newPassword: '', confirmPassword: '' })
+      toast.success('Password changed successfully')
+    } catch (err) {
+      const msg = err.response?.data?.error || 'Failed to change password. Please try again.'
+      setShowDialog(false)
+      setErrors({ currentPassword: msg })
+      toast.error(msg)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const inputClass = (field) =>
@@ -133,6 +142,7 @@ export default function ResetPasswordPage() {
         <ConfirmDialog
           onConfirm={handleConfirm}
           onCancel={() => setShowDialog(false)}
+          isLoading={isLoading}
         />
       )}
     </div>

@@ -1,6 +1,8 @@
 import { useState, useRef } from 'react'
 import { toast } from 'sonner'
+import axios from 'axios'
 import { Camera, User } from 'lucide-react'
+import { API_BASE } from '../../utils/api'
 
 export default function ProfilePage() {
   const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}')
@@ -9,15 +11,16 @@ export default function ProfilePage() {
     username: currentUser.username || '',
     email: currentUser.email || '',
   })
-  const [avatar, setAvatar] = useState(currentUser.avatar || null)
+  const [avatarFile, setAvatarFile] = useState(null) // { file, preview }
+  const [avatarPreview, setAvatarPreview] = useState(currentUser.profilePic || null)
+  const [isSaving, setIsSaving] = useState(false)
   const fileRef = useRef(null)
 
   const handleFileChange = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
-    const reader = new FileReader()
-    reader.onload = (ev) => setAvatar(ev.target.result)
-    reader.readAsDataURL(file)
+    setAvatarFile(file)
+    setAvatarPreview(URL.createObjectURL(file))
   }
 
   const handleChange = (e) => {
@@ -25,18 +28,31 @@ export default function ProfilePage() {
     setForm(prev => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     if (!form.name.trim() || !form.username.trim()) return
 
-    const updatedUser = { ...currentUser, name: form.name, username: form.username, avatar }
-    const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]')
-    localStorage.setItem(
-      'registeredUsers',
-      JSON.stringify(users.map(u => u.email === currentUser.email ? updatedUser : u))
-    )
-    localStorage.setItem('currentUser', JSON.stringify(updatedUser))
-    toast.success('Profile updated successfully')
+    setIsSaving(true)
+    const formData = new FormData()
+    formData.append('name', form.name)
+    formData.append('username', form.username)
+    if (avatarFile) formData.append('avatarFile', avatarFile)
+
+    try {
+      const token = localStorage.getItem('token')
+      const { data } = await axios.put(`${API_BASE}/profiles/me`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      localStorage.setItem('currentUser', JSON.stringify(data))
+      toast.success('Profile updated successfully')
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Failed to update profile')
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   const initials = form.name
@@ -57,8 +73,8 @@ export default function ProfilePage() {
               className="relative w-20 h-20 rounded-full overflow-hidden cursor-pointer group flex-shrink-0"
               onClick={() => fileRef.current?.click()}
             >
-              {avatar ? (
-                <img src={avatar} alt="avatar" className="w-full h-full object-cover" />
+              {avatarPreview ? (
+                <img src={avatarPreview} alt="avatar" className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full bg-gray-200 flex items-center justify-center">
                   {initials
@@ -101,9 +117,10 @@ export default function ProfilePage() {
 
           <button
             type="submit"
-            className="mt-2 py-2.5 px-6 bg-gray-900 text-white text-sm font-medium rounded-full hover:bg-gray-700 transition-colors cursor-pointer self-start"
+            disabled={isSaving}
+            className="mt-2 py-2.5 px-6 bg-gray-900 text-white text-sm font-medium rounded-full hover:bg-gray-700 transition-colors cursor-pointer self-start disabled:opacity-50"
           >
-            Save changes
+            {isSaving ? 'Saving…' : 'Save changes'}
           </button>
         </form>
       </div>

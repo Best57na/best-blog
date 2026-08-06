@@ -122,7 +122,7 @@ export default function PostPage() {
     const newComment = {
       id: Date.now(),
       author: currentUser.name || currentUser.username || 'User',
-      avatar: currentUser.avatar || null,
+      avatar: currentUser.profilePic || null,
       text: comment.trim(),
       date: new Date().toISOString(),
     }

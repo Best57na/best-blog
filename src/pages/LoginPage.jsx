@@ -24,14 +24,6 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    // Mockup bypass (for demo/testing without real account)
-    if (form.email === 'test1234' && form.password === 'test1234') {
-      const mockUser = { email: 'test1234', name: 'Test User', username: 'test1234', password: 'test1234' }
-      localStorage.setItem('currentUser', JSON.stringify(mockUser))
-      navigate('/admin/articles')
-      return
-    }
-
     const newErrors = {}
     if (!form.email.trim()) newErrors.email = 'Email is required'
     else if (!emailRegex.test(form.email)) newErrors.email = 'Email must be a valid email'

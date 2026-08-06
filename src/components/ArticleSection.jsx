@@ -5,9 +5,10 @@ import axios from 'axios'
 import { Input } from '@/components/ui/input'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
 
-const categories = ["Highlight", "Adventure", "Culture", "Food", "Tips"]
+const ALL_CATEGORY = "All"
 
 const API_URL = "https://best-blog-server.vercel.app/posts"
+const CATEGORIES_URL = "https://best-blog-server.vercel.app/categories"
 
 const formatDate = (isoDate) => {
   return new Date(isoDate).toLocaleDateString("en-GB", {
@@ -126,11 +127,18 @@ function BlogCard({ id, image, category, title, description, author, date }) {
 }
 
 export default function ArticleSection() {
-  const [selectedCategory, setSelectedCategory] = useState("Highlight")
+  const [categories, setCategories] = useState([])
+  const [selectedCategory, setSelectedCategory] = useState(ALL_CATEGORY)
   const [posts, setPosts] = useState([])
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    axios.get(CATEGORIES_URL)
+      .then((response) => setCategories((response.data.categories || []).map((c) => c.name)))
+      .catch((error) => console.error("Error fetching categories:", error))
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -138,7 +146,7 @@ export default function ArticleSection() {
       setIsLoading(true)
       try {
         const params = { page, limit: 6 }
-        if (selectedCategory !== "Highlight") params.category = selectedCategory
+        if (selectedCategory !== ALL_CATEGORY) params.category = selectedCategory
         const response = await axios.get(API_URL, { params })
         if (!cancelled) {
           setPosts((prev) => page === 1 ? response.data.posts : [...prev, ...response.data.posts])
@@ -173,7 +181,7 @@ export default function ArticleSection() {
       {/* Desktop: tabs + search */}
       <div className="hidden md:flex items-center justify-between mb-6 bg-white rounded-2xl px-4 py-2.5 border border-gray-100">
         <div className="flex space-x-2">
-          {categories.map((cat) => (
+          {[ALL_CATEGORY, ...categories].map((cat) => (
             <button
               key={cat}
               disabled={selectedCategory === cat}
@@ -201,7 +209,7 @@ export default function ArticleSection() {
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
             <SelectContent>
-              {categories.map(cat => (
+              {[ALL_CATEGORY, ...categories].map(cat => (
                 <SelectItem key={cat} value={cat}>{cat}</SelectItem>
               ))}
             </SelectContent>

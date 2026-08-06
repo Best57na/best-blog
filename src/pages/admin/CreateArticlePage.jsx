@@ -1,17 +1,9 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { ImageIcon } from 'lucide-react'
 import axios from 'axios'
 import { API_BASE } from '../../utils/api'
-
-const CATEGORIES = [
-  { id: 1, name: 'Highlight' },
-  { id: 2, name: 'Adventure' },
-  { id: 3, name: 'Culture' },
-  { id: 4, name: 'Food' },
-  { id: 5, name: 'Tips' },
-]
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
 const MAX_SIZE = 5 * 1024 * 1024 // 5 MB
@@ -26,10 +18,17 @@ export default function CreateArticlePage() {
   const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}')
   const fileRef = useRef(null)
 
+  const [categories, setCategories] = useState([])
   const [form, setForm] = useState({ title: '', category_id: '', description: '', content: '' })
   const [imageFile, setImageFile] = useState(null) // { file: File, preview: string }
   const [errors, setErrors] = useState({})
   const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    axios.get(`${API_BASE}/categories`)
+      .then(res => setCategories(res.data.categories || []))
+      .catch(() => toast.error('Failed to load categories'))
+  }, [])
 
   const handleImageChange = (e) => {
     const file = e.target.files?.[0]
@@ -179,7 +178,7 @@ export default function CreateArticlePage() {
               }`}
             >
               <option value="">Select category</option>
-              {CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
             <svg className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m6 9 6 6 6-6"/></svg>
           </div>

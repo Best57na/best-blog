@@ -23,12 +23,13 @@ function SidebarLink({ to, icon: Icon, children }) {
 export default function AdminLayout() {
   const navigate = useNavigate()
   const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null')
+  const isAdmin = currentUser?.role === 'admin'
 
   useEffect(() => {
-    if (!currentUser) navigate('/login', { replace: true })
+    if (!isAdmin) navigate('/login', { replace: true })
   }, [])
 
-  if (!currentUser) return null
+  if (!isAdmin) return null
 
   const handleLogout = () => {
     localStorage.removeItem('currentUser')
