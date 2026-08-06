@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { NavBar, Footer } from '../components/Sections'
 import { API_BASE } from '../utils/api'
+import { useLanguage } from '../lib/language'
 
 const FORM_KEY = 'ai_travel_suite_form'
 const RESULT_KEY = 'ai_travel_suite_result'
@@ -15,28 +16,40 @@ const CHECKLIST_KEY = 'ai_travel_suite_checklist'
 const PACKING_KEY = 'ai_travel_suite_packing'
 
 const STYLES = ['Backpacker', 'Mid-range', 'Luxury']
+const STYLE_KEYS = {
+  Backpacker: 'aiSuite.styleBackpacker',
+  'Mid-range': 'aiSuite.styleMidrange',
+  Luxury: 'aiSuite.styleLuxury',
+}
+
 const ACTIVITIES = [
   'Cafe hopping', 'Photography', 'Local Food', 'Shopping',
   'Nature & Hiking', 'Museum & History', 'Nightlife', 'Beach',
   'Adventure Sports', 'Wellness & Spa', 'Family Friendly', 'Local Markets',
 ]
-
-const LOADING_MESSAGES = [
-  'กำลังค้นหาตั๋วเครื่องบิน...',
-  'กำลังเช็กสภาพอากาศที่ปลายทาง...',
-  'กำลังพับเสื้อผ้าลงกระเป๋า...',
-  'กำลังคำนวณงบประมาณ...',
-  'เตรียมพิกัดถ่ายรูปและแคปชัน...',
-]
+const ACTIVITY_KEYS = {
+  'Cafe hopping': 'aiSuite.activityCafeHopping',
+  Photography: 'aiSuite.activityPhotography',
+  'Local Food': 'aiSuite.activityLocalFood',
+  Shopping: 'aiSuite.activityShopping',
+  'Nature & Hiking': 'aiSuite.activityNatureHiking',
+  'Museum & History': 'aiSuite.activityMuseumHistory',
+  Nightlife: 'aiSuite.activityNightlife',
+  Beach: 'aiSuite.activityBeach',
+  'Adventure Sports': 'aiSuite.activityAdventureSports',
+  'Wellness & Spa': 'aiSuite.activityWellnessSpa',
+  'Family Friendly': 'aiSuite.activityFamilyFriendly',
+  'Local Markets': 'aiSuite.activityLocalMarkets',
+}
 
 const TABS = [
-  { id: 'flights', label: 'Flights', icon: Plane },
-  { id: 'route', label: 'Getting there', icon: RouteIcon },
-  { id: 'accommodation', label: 'Stay', icon: Hotel },
-  { id: 'packing', label: 'Packing', icon: Luggage },
-  { id: 'budget', label: 'Budget', icon: Wallet },
-  { id: 'spots', label: 'Spots & Food', icon: Camera },
-  { id: 'captions', label: 'Captions', icon: MessageCircle },
+  { id: 'flights', labelKey: 'aiSuite.tabFlights', icon: Plane },
+  { id: 'route', labelKey: 'aiSuite.tabRoute', icon: RouteIcon },
+  { id: 'accommodation', labelKey: 'aiSuite.tabAccommodation', icon: Hotel },
+  { id: 'packing', labelKey: 'aiSuite.tabPacking', icon: Luggage },
+  { id: 'budget', labelKey: 'aiSuite.tabBudget', icon: Wallet },
+  { id: 'spots', labelKey: 'aiSuite.tabSpots', icon: Camera },
+  { id: 'captions', labelKey: 'aiSuite.tabCaptions', icon: MessageCircle },
 ]
 
 function loadJSON(key, fallback) {
@@ -49,6 +62,7 @@ function loadJSON(key, fallback) {
 }
 
 function TravelForm({ form, setForm, onGenerate, isLoading }) {
+  const { t } = useLanguage()
   const [customActivity, setCustomActivity] = useState('')
 
   const toggleActivity = (activity) => {
@@ -75,52 +89,52 @@ function TravelForm({ form, setForm, onGenerate, isLoading }) {
     <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 md:p-8 border border-gray-100 dark:border-gray-700">
       <div className="flex items-center gap-2 mb-6">
         <Sparkles size={20} className="text-sky-500" />
-        <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">AI Travel Suite</h1>
+        <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('aiSuite.heading')}</h1>
       </div>
 
       <div className="grid md:grid-cols-2 gap-5">
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">From</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{t('aiSuite.from')}</label>
           <input
             type="text"
             value={form.origin}
             onChange={e => setForm(prev => ({ ...prev, origin: e.target.value }))}
-            placeholder="e.g. Bangkok, Thailand"
+            placeholder={t('aiSuite.fromPlaceholder')}
             className="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg px-4 py-2.5 text-sm text-gray-700 dark:text-gray-100 placeholder-gray-300 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:focus:ring-sky-500/30 transition-colors"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">To</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{t('aiSuite.to')}</label>
           <input
             type="text"
             value={form.destination}
             onChange={e => setForm(prev => ({ ...prev, destination: e.target.value }))}
-            placeholder="e.g. Kyoto, Japan"
+            placeholder={t('aiSuite.toPlaceholder')}
             className="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg px-4 py-2.5 text-sm text-gray-700 dark:text-gray-100 placeholder-gray-300 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:focus:ring-sky-500/30 transition-colors"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Travel Dates</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{t('aiSuite.dates')}</label>
           <input
             type="text"
             value={form.dates}
             onChange={e => setForm(prev => ({ ...prev, dates: e.target.value }))}
-            placeholder="e.g. 15-20 Dec 2026"
+            placeholder={t('aiSuite.datesPlaceholder')}
             className="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg px-4 py-2.5 text-sm text-gray-700 dark:text-gray-100 placeholder-gray-300 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:focus:ring-sky-500/30 transition-colors"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Travel Style</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{t('aiSuite.style')}</label>
           <div className="relative">
             <select
               value={form.style}
               onChange={e => setForm(prev => ({ ...prev, style: e.target.value }))}
               className="w-full appearance-none border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg px-4 py-2.5 text-sm text-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:focus:ring-sky-500/30 cursor-pointer transition-colors"
             >
-              {STYLES.map(s => <option key={s} value={s}>{s}</option>)}
+              {STYLES.map(s => <option key={s} value={s}>{t(STYLE_KEYS[s])}</option>)}
             </select>
             <svg className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 pointer-events-none" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m6 9 6 6 6-6"/></svg>
           </div>
@@ -129,7 +143,7 @@ function TravelForm({ form, setForm, onGenerate, isLoading }) {
       </div>
 
       <div className="mt-5">
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Activities</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{t('aiSuite.activities')}</label>
         <div className="flex flex-wrap gap-2">
           {ACTIVITIES.map(activity => (
             <button
@@ -142,7 +156,7 @@ function TravelForm({ form, setForm, onGenerate, isLoading }) {
                   : 'bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-sky-300 dark:hover:border-sky-500'
               }`}
             >
-              {activity}
+              {t(ACTIVITY_KEYS[activity])}
             </button>
           ))}
         </div>
@@ -169,7 +183,7 @@ function TravelForm({ form, setForm, onGenerate, isLoading }) {
             value={customActivity}
             onChange={e => setCustomActivity(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addCustomActivity() } }}
-            placeholder="Add your own activity…"
+            placeholder={t('aiSuite.addActivityPlaceholder')}
             className="flex-1 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg px-4 py-2 text-sm text-gray-700 dark:text-gray-100 placeholder-gray-300 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:focus:ring-sky-500/30 transition-colors"
           />
           <button
@@ -178,7 +192,7 @@ function TravelForm({ form, setForm, onGenerate, isLoading }) {
             disabled={!customActivity.trim()}
             className="flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-semibold border border-sky-500 text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-500/10 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            <Plus size={14} /> Add
+            <Plus size={14} /> {t('aiSuite.add')}
           </button>
         </div>
       </div>
@@ -190,10 +204,10 @@ function TravelForm({ form, setForm, onGenerate, isLoading }) {
         className="mt-6 w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-sky-500 text-white text-sm font-semibold rounded-full hover:bg-sky-600 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <Wand2 size={16} />
-        {isLoading ? 'Generating…' : 'Generate Travel Plan'}
+        {isLoading ? t('aiSuite.generating') : t('aiSuite.generate')}
       </button>
       {!form.destination.trim() && (
-        <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">Enter a destination to get started.</p>
+        <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">{t('aiSuite.enterDestinationHint')}</p>
       )}
     </div>
   )
@@ -209,15 +223,16 @@ function LoadingStatus({ message }) {
 }
 
 function FlightsTab({ result }) {
+  const { t } = useLanguage()
   return (
     <div className="flex flex-col gap-5">
       <div className="grid sm:grid-cols-2 gap-4">
         <div className="bg-sky-50 dark:bg-sky-500/10 rounded-xl p-5">
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Estimated flight duration</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{t('aiSuite.flightDuration')}</p>
           <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{result.flights.duration}</p>
         </div>
         <div className="bg-sky-50 dark:bg-sky-500/10 rounded-xl p-5">
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Estimated price range</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{t('aiSuite.flightPrice')}</p>
           <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{result.flights.priceRange}</p>
         </div>
       </div>
@@ -228,7 +243,7 @@ function FlightsTab({ result }) {
           rel="noopener noreferrer"
           className="flex-1 text-center px-5 py-3 bg-sky-500 text-white text-sm font-semibold rounded-full hover:bg-sky-600 transition-colors"
         >
-          เช็กราคาตั๋วถูกสุดบน Skyscanner
+          {t('aiSuite.skyscannerCta')}
         </a>
         <a
           href="#"
@@ -236,7 +251,7 @@ function FlightsTab({ result }) {
           rel="noopener noreferrer"
           className="flex-1 text-center px-5 py-3 border border-sky-500 text-sky-600 dark:text-sky-400 text-sm font-semibold rounded-full hover:bg-sky-50 dark:hover:bg-sky-500/10 transition-colors"
         >
-          จองผ่าน Trip.com
+          {t('aiSuite.tripComCta')}
         </a>
       </div>
     </div>
@@ -280,6 +295,7 @@ function AccommodationTab({ result }) {
 }
 
 function PackingTab({ result, packingList, setPackingList, checklist, setChecklist, toggleChecked }) {
+  const { t } = useLanguage()
   const [newItemInputs, setNewItemInputs] = useState({})
   const [newCategoryName, setNewCategoryName] = useState('')
 
@@ -329,7 +345,7 @@ function PackingTab({ result, packingList, setPackingList, checklist, setCheckli
             <button
               type="button"
               onClick={() => removeCategory(category)}
-              title="Remove category"
+              title={t('aiSuite.removeCategory')}
               className="text-gray-300 dark:text-gray-600 hover:text-red-500 dark:hover:text-red-400 cursor-pointer"
             >
               <X size={14} />
@@ -368,7 +384,7 @@ function PackingTab({ result, packingList, setPackingList, checklist, setCheckli
               value={newItemInputs[category] || ''}
               onChange={e => setNewItemInputs(prev => ({ ...prev, [category]: e.target.value }))}
               onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addItem(category) } }}
-              placeholder={`Add item to ${category}…`}
+              placeholder={t('aiSuite.addItemToCategory').replace('{category}', category)}
               className="flex-1 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg px-3 py-1.5 text-xs text-gray-700 dark:text-gray-100 placeholder-gray-300 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:focus:ring-sky-500/30 transition-colors"
             />
             <button
@@ -389,7 +405,7 @@ function PackingTab({ result, packingList, setPackingList, checklist, setCheckli
           value={newCategoryName}
           onChange={e => setNewCategoryName(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addCategory() } }}
-          placeholder="Add a new category…"
+          placeholder={t('aiSuite.addNewCategoryPlaceholder')}
           className="flex-1 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg px-4 py-2 text-sm text-gray-700 dark:text-gray-100 placeholder-gray-300 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:focus:ring-sky-500/30 transition-colors"
         />
         <button
@@ -398,7 +414,7 @@ function PackingTab({ result, packingList, setPackingList, checklist, setCheckli
           disabled={!newCategoryName.trim()}
           className="flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-semibold border border-sky-500 text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-500/10 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          <Plus size={14} /> Add category
+          <Plus size={14} /> {t('aiSuite.addCategory')}
         </button>
       </div>
     </div>
@@ -406,11 +422,12 @@ function PackingTab({ result, packingList, setPackingList, checklist, setCheckli
 }
 
 function BudgetTab({ result }) {
+  const { t } = useLanguage()
   const barColors = ['bg-sky-500', 'bg-teal-500', 'bg-amber-500', 'bg-violet-500']
   return (
     <div className="flex flex-col gap-6">
       <div className="bg-sky-50 dark:bg-sky-500/10 rounded-xl p-6 text-center">
-        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Total estimated budget</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{t('aiSuite.totalBudget')}</p>
         <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{result.budget.total}</p>
       </div>
       <div className="flex flex-col gap-4">
@@ -431,11 +448,12 @@ function BudgetTab({ result }) {
 }
 
 function SpotsFoodTab({ result }) {
+  const { t } = useLanguage()
   return (
     <div className="flex flex-col gap-8">
       <div>
         <h3 className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">
-          <MapPin size={16} className="text-sky-500" /> Popular photo spots
+          <MapPin size={16} className="text-sky-500" /> {t('aiSuite.popularSpots')}
         </h3>
         <div className="flex flex-col gap-3">
           {result.spots.map(s => (
@@ -449,7 +467,7 @@ function SpotsFoodTab({ result }) {
 
       <div>
         <h3 className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">
-          <UtensilsCrossed size={16} className="text-sky-500" /> Must-try local dishes
+          <UtensilsCrossed size={16} className="text-sky-500" /> {t('aiSuite.mustTryDishes')}
         </h3>
         <div className="flex flex-col gap-3">
           {result.food.map(f => (
@@ -465,10 +483,10 @@ function SpotsFoodTab({ result }) {
         href="#"
         className="block bg-gradient-to-r from-sky-500 to-teal-500 rounded-2xl p-6 text-white hover:opacity-95 transition-opacity"
       >
-        <p className="text-xs uppercase tracking-wide text-sky-100 mb-1">Full guide</p>
-        <p className="text-lg font-bold">อ่านรีวิว {result.destination} ฉบับเต็ม พร้อมพิกัดลับ ได้ที่นี่!</p>
+        <p className="text-xs uppercase tracking-wide text-sky-100 mb-1">{t('aiSuite.fullGuide')}</p>
+        <p className="text-lg font-bold">{t('aiSuite.readMoreTemplate').replace('{destination}', result.destination)}</p>
         <span className="inline-flex items-center gap-1 text-sm font-medium mt-2">
-          อ่านต่อ <ExternalLink size={13} />
+          {t('aiSuite.readMore')} <ExternalLink size={13} />
         </span>
       </a>
     </div>
@@ -476,6 +494,7 @@ function SpotsFoodTab({ result }) {
 }
 
 function CaptionsTab({ result }) {
+  const { t } = useLanguage()
   const [copiedIndex, setCopiedIndex] = useState(null)
 
   const copyCaption = async (text, index) => {
@@ -502,7 +521,7 @@ function CaptionsTab({ result }) {
             </button>
             {copiedIndex === i && (
               <span className="absolute -top-8 right-0 px-2 py-1 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs rounded-md whitespace-nowrap">
-                Copied!
+                {t('aiSuite.copied')}
               </span>
             )}
           </div>
@@ -517,36 +536,36 @@ function loadPersistedResult() {
   return stored && Array.isArray(stored.route) && Array.isArray(stored.accommodation) ? stored : null
 }
 
-function formatPlanAsText(result, packingList) {
-  const lines = [`แผนเดินทาง: ${result.destination}`, '']
+function formatPlanAsText(result, packingList, t) {
+  const lines = [`${t('aiSuite.exportPlanTitle')} ${result.destination}`, '']
 
   if (result.needsFlight && result.flights) {
-    lines.push(`✈️ เที่ยวบิน: ${result.flights.duration} (${result.flights.priceRange})`)
+    lines.push(`✈️ ${t('aiSuite.exportFlight')} ${result.flights.duration} (${result.flights.priceRange})`)
   }
-  lines.push(`🌤️ สภาพอากาศ: ${result.weather}`, '')
+  lines.push(`🌤️ ${t('aiSuite.exportWeather')} ${result.weather}`, '')
 
-  lines.push('🗺️ เส้นทางการเดินทาง:')
+  lines.push(`🗺️ ${t('aiSuite.exportRoute')}`)
   result.route.forEach((step, i) => lines.push(`${i + 1}. ${step.title} — ${step.desc}`))
   lines.push('')
 
-  lines.push('🏨 ที่พักแนะนำ:')
+  lines.push(`🏨 ${t('aiSuite.exportAccommodation')}`)
   result.accommodation.forEach(stay => lines.push(`- ${stay.name} (${stay.area}) ${stay.priceRange}`))
   lines.push('')
 
-  lines.push(`💰 งบประมาณรวม: ${result.budget.total}`)
+  lines.push(`💰 ${t('aiSuite.exportBudget')} ${result.budget.total}`)
   result.budget.breakdown.forEach(row => lines.push(`  - ${row.label}: ${row.amount} (${row.percent}%)`))
   lines.push('')
 
-  lines.push('📸 จุดถ่ายรูปแนะนำ:')
+  lines.push(`📸 ${t('aiSuite.exportSpots')}`)
   result.spots.forEach(s => lines.push(`- ${s.name}: ${s.desc}`))
   lines.push('')
 
-  lines.push('🍜 ของกินแนะนำ:')
+  lines.push(`🍜 ${t('aiSuite.exportFood')}`)
   result.food.forEach(f => lines.push(`- ${f.name}: ${f.desc}`))
   lines.push('')
 
   if (packingList && packingList.length > 0) {
-    lines.push('🎒 ของที่ต้องแพ็ก:')
+    lines.push(`🎒 ${t('aiSuite.exportPacking')}`)
     packingList.forEach(cat => {
       lines.push(`${cat.category}:`)
       cat.items.forEach(item => lines.push(`  - ${item}`))
@@ -554,14 +573,22 @@ function formatPlanAsText(result, packingList) {
     lines.push('')
   }
 
-  lines.push('📝 แคปชันแนะนำ:')
+  lines.push(`📝 ${t('aiSuite.exportCaptions')}`)
   result.captions.forEach(c => lines.push(`- ${c}`))
-  lines.push('', 'สร้างโดย AI Travel Suite')
+  lines.push('', t('aiSuite.exportFooter'))
 
   return lines.join('\n')
 }
 
 export default function AITravelSuitePage() {
+  const { t } = useLanguage()
+  const LOADING_MESSAGES = [
+    t('aiSuite.loadingMessage1'),
+    t('aiSuite.loadingMessage2'),
+    t('aiSuite.loadingMessage3'),
+    t('aiSuite.loadingMessage4'),
+    t('aiSuite.loadingMessage5'),
+  ]
   const [form, setForm] = useState(() => loadJSON(FORM_KEY, { origin: '', destination: '', dates: '', style: 'Mid-range', activities: [] }))
   const [result, setResult] = useState(loadPersistedResult)
   const [packingList, setPackingList] = useState(() => loadJSON(PACKING_KEY, []))
@@ -622,7 +649,7 @@ export default function AITravelSuitePage() {
       setChecklist({})
       setActiveTab(response.data.plan.needsFlight ? 'flights' : 'route')
     } catch (error) {
-      toast.error(error.response?.data?.message || 'สร้างแผนการเดินทางไม่สำเร็จ ลองใหม่อีกครั้ง')
+      toast.error(error.response?.data?.message || t('aiSuite.generateErrorFallback'))
     } finally {
       clearInterval(rotation)
       setIsLoading(false)
@@ -640,7 +667,7 @@ export default function AITravelSuitePage() {
   }
 
   const handleSavePlan = () => {
-    const text = formatPlanAsText(result, packingList)
+    const text = formatPlanAsText(result, packingList, t)
     const blob = new Blob([text], { type: 'text/plain;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -650,14 +677,14 @@ export default function AITravelSuitePage() {
     a.click()
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
-    toast.success('บันทึกแผนการเดินทางแล้ว')
+    toast.success(t('aiSuite.planSaved'))
   }
 
   const handleSharePlan = async () => {
-    const text = formatPlanAsText(result, packingList)
+    const text = formatPlanAsText(result, packingList, t)
     if (navigator.share) {
       try {
-        await navigator.share({ title: `แผนเที่ยว ${result.destination}`, text })
+        await navigator.share({ title: `${t('aiSuite.shareTitlePrefix')} ${result.destination}`, text })
       } catch {
         // user cancelled the native share sheet
       }
@@ -665,9 +692,9 @@ export default function AITravelSuitePage() {
     }
     try {
       await navigator.clipboard.writeText(text)
-      toast.success('คัดลอกแผนการเดินทางไปยังคลิปบอร์ดแล้ว')
+      toast.success(t('aiSuite.planCopied'))
     } catch {
-      toast.error('ไม่สามารถคัดลอกแผนการเดินทางได้')
+      toast.error(t('aiSuite.planCopyError'))
     }
   }
 
@@ -682,7 +709,7 @@ export default function AITravelSuitePage() {
         {result && !isLoading && (
           <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden">
             <div className="flex items-center justify-between gap-2 px-4 md:px-6 pt-5">
-              <div className="flex gap-1 overflow-x-auto no-scrollbar">
+              <div className="flex-1 min-w-0 flex gap-1 overflow-x-auto no-scrollbar">
                 {TABS.filter(tab => tab.id !== 'flights' || result.needsFlight).map(tab => {
                   const Icon = tab.icon
                   return (
@@ -696,7 +723,7 @@ export default function AITravelSuitePage() {
                       }`}
                     >
                       <Icon size={14} />
-                      {tab.label}
+                      {t(tab.labelKey)}
                     </button>
                   )
                 })}
@@ -704,14 +731,14 @@ export default function AITravelSuitePage() {
               <div className="flex items-center gap-1 flex-shrink-0">
                 <button
                   onClick={handleSavePlan}
-                  title="Save plan"
+                  title={t('aiSuite.savePlanTitle')}
                   className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-sky-600 dark:hover:text-sky-400 transition-colors cursor-pointer"
                 >
                   <Download size={16} />
                 </button>
                 <button
                   onClick={handleSharePlan}
-                  title="Share plan"
+                  title={t('aiSuite.sharePlanTitle')}
                   className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-sky-600 dark:hover:text-sky-400 transition-colors cursor-pointer"
                 >
                   <Share2 size={16} />
@@ -743,7 +770,7 @@ export default function AITravelSuitePage() {
                 onClick={handleNewPlan}
                 className="text-xs font-medium text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 underline underline-offset-2 cursor-pointer"
               >
-                Start a new plan
+                {t('aiSuite.startNewPlan')}
               </button>
             </div>
           </div>
