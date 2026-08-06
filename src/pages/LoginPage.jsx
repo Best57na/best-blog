@@ -5,10 +5,12 @@ import axios from 'axios'
 import logo from '../assets/logo.svg'
 import logoDark from '../assets/logo-dark.svg'
 import { API_BASE } from '../utils/api'
+import { useLanguage } from '../lib/language'
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export default function LoginPage() {
+  const { t } = useLanguage()
   const navigate = useNavigate()
   const [form, setForm] = useState({ email: '', password: '' })
   const [errors, setErrors] = useState({})
@@ -26,9 +28,9 @@ export default function LoginPage() {
     e.preventDefault()
 
     const newErrors = {}
-    if (!form.email.trim()) newErrors.email = 'Email is required'
-    else if (!emailRegex.test(form.email)) newErrors.email = 'Email must be a valid email'
-    if (!form.password) newErrors.password = 'Password is required'
+    if (!form.email.trim()) newErrors.email = t('auth.emailRequired')
+    else if (!emailRegex.test(form.email)) newErrors.email = t('auth.emailInvalid')
+    if (!form.password) newErrors.password = t('auth.passwordRequired')
     if (Object.keys(newErrors).length > 0) { setErrors(newErrors); return }
 
     setIsLoading(true)
@@ -49,9 +51,9 @@ export default function LoginPage() {
 
       navigate('/admin/articles')
     } catch (err) {
-      const msg = err.response?.data?.error || 'Your password is incorrect or this email doesn\'t exist'
+      const msg = err.response?.data?.error || t('auth.loginFailed')
       setLoginFailed(true)
-      toast.error(msg, { description: 'Please try another password or email' })
+      toast.error(msg, { description: t('auth.loginFailedDesc') })
     } finally {
       setIsLoading(false)
     }
@@ -68,29 +70,29 @@ export default function LoginPage() {
     <div className="min-h-screen bg-stone-100 dark:bg-gray-900">
       <nav className="flex items-center justify-between px-4 md:px-8 py-4 bg-stone-100 dark:bg-gray-900">
         <Link to="/">
-          <img src={logo} alt="logo" className="h-8 dark:hidden" />
-          <img src={logoDark} alt="logo" className="h-8 hidden dark:block" />
+          <img src={logo} alt={t('nav.logoAlt')} className="h-8 dark:hidden" />
+          <img src={logoDark} alt={t('nav.logoAlt')} className="h-8 hidden dark:block" />
         </Link>
         <div className="flex items-center gap-3">
-          <Link to="/login" className="px-5 py-2 rounded-full border border-gray-300 dark:border-gray-600 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-white dark:hover:bg-gray-800 transition-colors">Log in</Link>
-          <Link to="/signup" className="px-5 py-2 rounded-full bg-gray-900 dark:bg-gray-100 text-sm font-medium text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-white transition-colors">Sign up</Link>
+          <Link to="/login" className="px-5 py-2 rounded-full border border-gray-300 dark:border-gray-600 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-white dark:hover:bg-gray-800 transition-colors">{t('nav.login')}</Link>
+          <Link to="/signup" className="px-5 py-2 rounded-full bg-gray-900 dark:bg-gray-100 text-sm font-medium text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-white transition-colors">{t('nav.signup')}</Link>
         </div>
       </nav>
 
       <div className="flex items-center justify-center px-4 py-10">
         <div className="bg-stone-200 dark:bg-gray-800 rounded-3xl w-full max-w-md px-10 py-10">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 text-center mb-8">Log in</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 text-center mb-8">{t('auth.login')}</h1>
 
           <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Email</label>
-              <input type="email" name="email" value={form.email} onChange={handleChange} placeholder="Email" className={inputClass('email')} />
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{t('auth.email')}</label>
+              <input type="email" name="email" value={form.email} onChange={handleChange} placeholder={t('auth.emailPlaceholder')} className={inputClass('email')} />
               {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Password</label>
-              <input type="password" name="password" value={form.password} onChange={handleChange} placeholder="Password" className={inputClass('password')} />
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{t('auth.password')}</label>
+              <input type="password" name="password" value={form.password} onChange={handleChange} placeholder={t('auth.passwordPlaceholder')} className={inputClass('password')} />
               {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password}</p>}
             </div>
 
@@ -99,13 +101,13 @@ export default function LoginPage() {
               disabled={isLoading}
               className="mt-2 py-3 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-sm font-medium rounded-full cursor-pointer hover:bg-gray-700 dark:hover:bg-white transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {isLoading ? 'Logging in…' : 'Log in'}
+              {isLoading ? t('auth.loggingIn') : t('auth.login')}
             </button>
           </form>
 
           <p className="text-sm text-gray-500 dark:text-gray-400 text-center mt-6">
-            Don&apos;t have any account?{' '}
-            <Link to="/signup" className="text-gray-900 dark:text-gray-100 font-medium underline underline-offset-2">Sign up</Link>
+            {t('auth.dontHaveAccount')}{' '}
+            <Link to="/signup" className="text-gray-900 dark:text-gray-100 font-medium underline underline-offset-2">{t('auth.signup')}</Link>
           </p>
         </div>
       </div>
