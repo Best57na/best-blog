@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Bell, User, Mail, X, Globe, Moon, Sun } from 'lucide-react'
+import { Bell, User, Mail, X, Globe, Moon, Sun, Sparkles } from 'lucide-react'
 import myPic from '../assets/My pic.jpg'
 import logo from '../assets/logo.svg'
 import logoDark from '../assets/logo-dark.svg'
@@ -176,6 +176,13 @@ export function NavBar() {
       </Link>
 
       <div className="hidden md:flex items-center gap-3">
+        <Link
+          to="/ai-travel-suite"
+          title="AI Travel Suite"
+          className="relative p-2 rounded-full text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-500/10 transition-colors cursor-pointer"
+        >
+          <Sparkles size={20} />
+        </Link>
         {currentUser ? (
           <>
             <NotificationBell />
