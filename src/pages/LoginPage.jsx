@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import axios from 'axios'
-import logo from '../assets/logo.png'
+import logo from '../assets/logo.svg'
 import { API_BASE } from '../utils/api'
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
