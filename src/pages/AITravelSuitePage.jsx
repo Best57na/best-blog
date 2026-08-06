@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 import {
   Sparkles, Plane, Luggage, Wallet, Camera, MessageCircle,
   Copy, Check, CloudRain, MapPin, UtensilsCrossed, ExternalLink, Wand2,
+  Route as RouteIcon, Hotel, X, Plus,
 } from 'lucide-react'
 import { NavBar, Footer } from '../components/Sections'
 import { API_BASE } from '../utils/api'
@@ -13,7 +14,11 @@ const RESULT_KEY = 'ai_travel_suite_result'
 const CHECKLIST_KEY = 'ai_travel_suite_checklist'
 
 const STYLES = ['Backpacker', 'Mid-range', 'Luxury']
-const ACTIVITIES = ['Cafe hopping', 'Photography', 'Local Food', 'Shopping']
+const ACTIVITIES = [
+  'Cafe hopping', 'Photography', 'Local Food', 'Shopping',
+  'Nature & Hiking', 'Museum & History', 'Nightlife', 'Beach',
+  'Adventure Sports', 'Wellness & Spa', 'Family Friendly', 'Local Markets',
+]
 
 const LOADING_MESSAGES = [
   'กำลังค้นหาตั๋วเครื่องบิน...',
@@ -25,6 +30,8 @@ const LOADING_MESSAGES = [
 
 const TABS = [
   { id: 'flights', label: 'Flights', icon: Plane },
+  { id: 'route', label: 'Getting there', icon: RouteIcon },
+  { id: 'accommodation', label: 'Stay', icon: Hotel },
   { id: 'packing', label: 'Packing', icon: Luggage },
   { id: 'budget', label: 'Budget', icon: Wallet },
   { id: 'spots', label: 'Spots & Food', icon: Camera },
@@ -60,6 +67,8 @@ function loadJSON(key, fallback) {
 }
 
 function TravelForm({ form, setForm, onGenerate, isLoading }) {
+  const [customActivity, setCustomActivity] = useState('')
+
   const toggleActivity = (activity) => {
     setForm(prev => ({
       ...prev,
@@ -68,6 +77,15 @@ function TravelForm({ form, setForm, onGenerate, isLoading }) {
         : [...prev.activities, activity],
     }))
   }
+
+  const addCustomActivity = () => {
+    const trimmed = customActivity.trim()
+    if (!trimmed) return
+    setForm(prev => prev.activities.includes(trimmed) ? prev : { ...prev, activities: [...prev.activities, trimmed] })
+    setCustomActivity('')
+  }
+
+  const customActivities = form.activities.filter(a => !ACTIVITIES.includes(a))
 
   const canSubmit = form.destination.trim().length > 0 && !isLoading
 
@@ -80,7 +98,18 @@ function TravelForm({ form, setForm, onGenerate, isLoading }) {
 
       <div className="grid md:grid-cols-2 gap-5">
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Destination</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">From</label>
+          <input
+            type="text"
+            value={form.origin}
+            onChange={e => setForm(prev => ({ ...prev, origin: e.target.value }))}
+            placeholder="e.g. Bangkok, Thailand"
+            className="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg px-4 py-2.5 text-sm text-gray-700 dark:text-gray-100 placeholder-gray-300 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:focus:ring-sky-500/30 transition-colors"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">To</label>
           <input
             type="text"
             value={form.destination}
@@ -115,24 +144,60 @@ function TravelForm({ form, setForm, onGenerate, isLoading }) {
           </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Activities</label>
-          <div className="flex flex-wrap gap-2">
-            {ACTIVITIES.map(activity => (
+      </div>
+
+      <div className="mt-5">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Activities</label>
+        <div className="flex flex-wrap gap-2">
+          {ACTIVITIES.map(activity => (
+            <button
+              key={activity}
+              type="button"
+              onClick={() => toggleActivity(activity)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors cursor-pointer ${
+                form.activities.includes(activity)
+                  ? 'bg-sky-500 border-sky-500 text-white'
+                  : 'bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-sky-300 dark:hover:border-sky-500'
+              }`}
+            >
+              {activity}
+            </button>
+          ))}
+        </div>
+
+        {customActivities.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-2">
+            {customActivities.map(activity => (
               <button
                 key={activity}
                 type="button"
                 onClick={() => toggleActivity(activity)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors cursor-pointer ${
-                  form.activities.includes(activity)
-                    ? 'bg-sky-500 border-sky-500 text-white'
-                    : 'bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-sky-300 dark:hover:border-sky-500'
-                }`}
+                className="flex items-center gap-1 pl-3 pr-2 py-1.5 rounded-full text-xs font-medium bg-sky-500 border border-sky-500 text-white cursor-pointer"
               >
                 {activity}
+                <X size={12} />
               </button>
             ))}
           </div>
+        )}
+
+        <div className="flex items-center gap-2 mt-3">
+          <input
+            type="text"
+            value={customActivity}
+            onChange={e => setCustomActivity(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addCustomActivity() } }}
+            placeholder="Add your own activity…"
+            className="flex-1 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg px-4 py-2 text-sm text-gray-700 dark:text-gray-100 placeholder-gray-300 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:focus:ring-sky-500/30 transition-colors"
+          />
+          <button
+            type="button"
+            onClick={addCustomActivity}
+            disabled={!customActivity.trim()}
+            className="flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-semibold border border-sky-500 text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-500/10 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <Plus size={14} /> Add
+          </button>
         </div>
       </div>
 
@@ -206,6 +271,42 @@ function FlightsTab({ result }) {
           จองผ่าน Trip.com
         </a>
       </div>
+    </div>
+  )
+}
+
+function RouteTab({ result }) {
+  return (
+    <div className="flex flex-col gap-4">
+      {(result.route || []).map((step, i) => (
+        <div key={i} className="flex gap-4">
+          <div className="flex flex-col items-center flex-shrink-0">
+            <span className="w-7 h-7 rounded-full bg-sky-500 text-white text-xs font-bold flex items-center justify-center">{i + 1}</span>
+            {i < result.route.length - 1 && <span className="w-px flex-1 bg-gray-200 dark:bg-gray-600 mt-1" />}
+          </div>
+          <div className="pb-4">
+            <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{step.title}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">{step.desc}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function AccommodationTab({ result }) {
+  return (
+    <div className="flex flex-col gap-3">
+      {(result.accommodation || []).map(stay => (
+        <div key={stay.name} className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+          <div className="flex items-start justify-between gap-3">
+            <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{stay.name}</p>
+            <span className="flex-shrink-0 text-xs font-medium text-sky-600 dark:text-sky-400">{stay.priceRange}</span>
+          </div>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{stay.area}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 leading-relaxed">{stay.desc}</p>
+        </div>
+      ))}
     </div>
   )
 }
@@ -355,13 +456,21 @@ function CaptionsTab({ result }) {
   )
 }
 
+function loadPersistedResult() {
+  const stored = loadJSON(RESULT_KEY, null)
+  return stored && Array.isArray(stored.route) && Array.isArray(stored.accommodation) ? stored : null
+}
+
 export default function AITravelSuitePage() {
-  const [form, setForm] = useState(() => loadJSON(FORM_KEY, { destination: '', dates: '', style: 'Mid-range', activities: [] }))
-  const [result, setResult] = useState(() => loadJSON(RESULT_KEY, null))
+  const [form, setForm] = useState(() => loadJSON(FORM_KEY, { origin: '', destination: '', dates: '', style: 'Mid-range', activities: [] }))
+  const [result, setResult] = useState(loadPersistedResult)
   const [checklist, setChecklist] = useState(() => loadJSON(CHECKLIST_KEY, {}))
   const [isLoading, setIsLoading] = useState(false)
   const [loadingMessage, setLoadingMessage] = useState(LOADING_MESSAGES[0])
-  const [activeTab, setActiveTab] = useState('flights')
+  const [activeTab, setActiveTab] = useState(() => {
+    const persisted = loadPersistedResult()
+    return persisted && !persisted.needsFlight ? 'route' : 'flights'
+  })
   const timers = useRef([])
 
   useEffect(() => {
@@ -397,13 +506,14 @@ export default function AITravelSuitePage() {
 
     try {
       const response = await axios.post(`${API_BASE}/ai/travel-plan`, {
+        origin: form.origin,
         destination: form.destination,
         dates: form.dates,
         style: form.style,
         activities: form.activities,
       })
       setResult(response.data.plan)
-      setActiveTab('flights')
+      setActiveTab(response.data.plan.needsFlight ? 'flights' : 'route')
     } catch (error) {
       toast.error(error.response?.data?.message || 'สร้างแผนการเดินทางไม่สำเร็จ ลองใหม่อีกครั้ง')
     } finally {
@@ -432,7 +542,7 @@ export default function AITravelSuitePage() {
           <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden">
             <div className="flex items-center justify-between px-4 md:px-6 pt-5">
               <div className="flex gap-1 overflow-x-auto no-scrollbar">
-                {TABS.map(tab => {
+                {TABS.filter(tab => tab.id !== 'flights' || result.needsFlight).map(tab => {
                   const Icon = tab.icon
                   return (
                     <button
@@ -453,7 +563,9 @@ export default function AITravelSuitePage() {
             </div>
 
             <div className="p-4 md:p-6">
-              {activeTab === 'flights' && <FlightsTab result={result} />}
+              {activeTab === 'flights' && result.needsFlight && <FlightsTab result={result} />}
+              {activeTab === 'route' && <RouteTab result={result} />}
+              {activeTab === 'accommodation' && <AccommodationTab result={result} />}
               {activeTab === 'packing' && <PackingTab result={result} checklist={checklist} toggleChecked={toggleChecked} />}
               {activeTab === 'budget' && <BudgetTab result={result} />}
               {activeTab === 'spots' && <SpotsFoodTab result={result} />}
