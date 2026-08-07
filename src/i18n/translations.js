@@ -30,6 +30,7 @@ const en = {
     resetPassword: 'Reset password',
     adminPanel: 'Admin panel',
     darkMode: 'Dark mode',
+    lightMode: 'Light mode',
     logout: 'Log out',
     login: 'Log in',
     signup: 'Sign up',
