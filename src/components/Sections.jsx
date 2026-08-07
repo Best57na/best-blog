@@ -118,6 +118,7 @@ function UserMenu({ currentUser, onLogout }) {
     ? currentUser.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
     : currentUser.username?.[0]?.toUpperCase() || 'U'
 
+  const isAdmin = currentUser.role === 'admin'
   const go = (path) => { navigate(path); setOpen(false) }
 
   return (
@@ -137,18 +138,20 @@ function UserMenu({ currentUser, onLogout }) {
 
       {open && (
         <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-lg z-50 py-1.5 overflow-hidden">
-          <button onClick={() => go('/admin/profile')}
+          <button onClick={() => go(isAdmin ? '/admin/profile' : '/profile')}
             className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer">
             {t('nav.profile')}
           </button>
-          <button onClick={() => go('/admin/reset-password')}
+          <button onClick={() => go(isAdmin ? '/admin/reset-password' : '/reset-password')}
             className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer">
             {t('nav.resetPassword')}
           </button>
-          <button onClick={() => go('/admin/articles')}
-            className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer">
-            {t('nav.adminPanel')}
-          </button>
+          {isAdmin && (
+            <button onClick={() => go('/admin/articles')}
+              className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer">
+              {t('nav.adminPanel')}
+            </button>
+          )}
           <button onClick={toggleTheme}
             className="w-full flex items-center gap-2 text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer">
             {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
