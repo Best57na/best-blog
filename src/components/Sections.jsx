@@ -155,7 +155,7 @@ function UserMenu({ currentUser, onLogout }) {
           <button onClick={toggleTheme}
             className="w-full flex items-center gap-2 text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer">
             {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
-            {t('nav.darkMode')}
+            {theme === 'dark' ? t('nav.lightMode') : t('nav.darkMode')}
           </button>
           <div className="my-1 border-t border-gray-100 dark:border-gray-700" />
           <button onClick={() => { onLogout(); setOpen(false) }}
@@ -333,7 +333,7 @@ export function Footer() {
           </a>
         </div>
       </div>
-      <span className="text-sm text-gray-500 dark:text-gray-400">{t('footer.homePage')}</span>
+      <Link to="/" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">{t('footer.homePage')}</Link>
     </footer>
   )
 }
