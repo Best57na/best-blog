@@ -49,7 +49,7 @@ export default function LoginPage() {
       })
       localStorage.setItem('currentUser', JSON.stringify(user))
 
-      navigate('/admin/articles')
+      navigate(user.role === 'admin' ? '/admin/articles' : '/')
     } catch (err) {
       const msg = err.response?.data?.error || t('auth.loginFailed')
       setLoginFailed(true)
