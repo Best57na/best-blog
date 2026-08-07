@@ -6,6 +6,7 @@ import logo from '../assets/logo.svg'
 import logoDark from '../assets/logo-dark.svg'
 import { API_BASE } from '../utils/api'
 import { useLanguage } from '../lib/language'
+import PasswordInput from '../components/PasswordInput'
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -17,13 +18,15 @@ function validate(form, t) {
   else if (!emailRegex.test(form.email)) errors.email = t('auth.emailInvalid')
   if (!form.password) errors.password = t('auth.passwordRequired')
   else if (form.password.length < 8) errors.password = t('auth.passwordMin')
+  if (!form.confirmPassword) errors.confirmPassword = t('auth.confirmPasswordRequired')
+  else if (form.password !== form.confirmPassword) errors.confirmPassword = t('auth.passwordMismatch')
   return errors
 }
 
 export default function SignUpPage() {
   const { t } = useLanguage()
   const navigate = useNavigate()
-  const [form, setForm] = useState({ name: '', username: '', email: '', password: '' })
+  const [form, setForm] = useState({ name: '', username: '', email: '', password: '', confirmPassword: '' })
   const [errors, setErrors] = useState({})
   const [success, setSuccess] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -116,8 +119,13 @@ export default function SignUpPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{t('auth.password')}</label>
-                <input type="password" name="password" value={form.password} onChange={handleChange} placeholder={t('auth.passwordPlaceholder')} className={inputClass('password')} />
+                <PasswordInput name="password" value={form.password} onChange={handleChange} placeholder={t('auth.passwordPlaceholder')} className={inputClass('password')} />
                 {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password}</p>}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{t('auth.confirmPassword')}</label>
+                <PasswordInput name="confirmPassword" value={form.confirmPassword} onChange={handleChange} placeholder={t('auth.confirmPasswordPlaceholder')} className={inputClass('confirmPassword')} />
+                {errors.confirmPassword && <p className="text-xs text-red-500 mt-1">{errors.confirmPassword}</p>}
               </div>
 
               <button

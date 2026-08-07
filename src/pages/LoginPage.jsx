@@ -6,6 +6,7 @@ import logo from '../assets/logo.svg'
 import logoDark from '../assets/logo-dark.svg'
 import { API_BASE } from '../utils/api'
 import { useLanguage } from '../lib/language'
+import PasswordInput from '../components/PasswordInput'
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -92,7 +93,7 @@ export default function LoginPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{t('auth.password')}</label>
-              <input type="password" name="password" value={form.password} onChange={handleChange} placeholder={t('auth.passwordPlaceholder')} className={inputClass('password')} />
+              <PasswordInput name="password" value={form.password} onChange={handleChange} placeholder={t('auth.passwordPlaceholder')} className={inputClass('password')} />
               {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password}</p>}
             </div>
 
