@@ -75,6 +75,12 @@ const en = {
     comment: 'Comment',
     commentPlaceholder: 'What are your thoughts?',
     send: 'Send',
+    commentDeleted: 'Comment deleted',
+    commentDeleteFailed: 'Failed to delete comment',
+    commentLoadFailed: 'Failed to load comments',
+    commentPostFailed: 'Failed to post comment',
+    likeFailed: 'Failed to update like',
+    deleteComment: 'Delete comment',
   },
   auth: {
     email: 'Email',

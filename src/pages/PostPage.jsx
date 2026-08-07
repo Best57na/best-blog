@@ -3,9 +3,10 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import axios from 'axios'
 import ReactMarkdown from 'react-markdown'
 import { NavBar, Footer } from '../components/Sections'
-import { SmilePlus, Copy, X } from 'lucide-react'
+import { SmilePlus, Copy, X, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useLanguage } from '../lib/language'
+import { API_BASE } from '../utils/api'
 
 const formatDate = (isoDate) =>
   new Date(isoDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -75,22 +76,20 @@ export default function PostPage() {
   const [loading, setLoading] = useState(true)
   const [showDialog, setShowDialog] = useState(false)
 
-  const [liked, setLiked] = useState(() => {
-    const likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '{}')
-    return !!likedPosts[postId]
-  })
+  const [liked, setLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(0)
+  const [likeBusy, setLikeBusy] = useState(false)
 
   const [comment, setComment] = useState('')
-  const [comments, setComments] = useState(() => {
-    const stored = JSON.parse(localStorage.getItem('postComments') || '{}')
-    return stored[postId] || []
-  })
+  const [comments, setComments] = useState([])
+  const [sendingComment, setSendingComment] = useState(false)
+
+  const authHeaders = () => ({ Authorization: `Bearer ${localStorage.getItem('token')}` })
 
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const res = await axios.get(`https://best-blog-server.vercel.app/posts/${postId}`)
+        const res = await axios.get(`${API_BASE}/posts/${postId}`)
         setPost(res.data)
         setLikeCount(res.data.likes_count)
       } catch {
@@ -102,41 +101,78 @@ export default function PostPage() {
     fetchPost()
   }, [postId, navigate])
 
+  useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const res = await axios.get(`${API_BASE}/posts/${postId}/comments`)
+        setComments(res.data)
+      } catch {
+        toast.error(t('post.commentLoadFailed'))
+      }
+    }
+    fetchComments()
+  }, [postId])
+
+  useEffect(() => {
+    if (!isLoggedIn) return
+    const fetchLikeStatus = async () => {
+      try {
+        const res = await axios.get(`${API_BASE}/posts/${postId}/likes/me`, { headers: authHeaders() })
+        setLiked(res.data.liked)
+        setLikeCount(res.data.likes_count)
+      } catch {
+        // silently ignore, keep default (not liked)
+      }
+    }
+    fetchLikeStatus()
+  }, [postId, isLoggedIn])
+
   const requireAuth = () => { setShowDialog(true) }
 
-  const handleLike = () => {
+  const handleLike = async () => {
     if (!isLoggedIn) { requireAuth(); return }
-    const likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '{}')
-    if (liked) {
-      delete likedPosts[postId]
-      setLikeCount(c => c - 1)
-    } else {
-      likedPosts[postId] = true
-      setLikeCount(c => c + 1)
+    if (likeBusy) return
+    setLikeBusy(true)
+    try {
+      const res = await axios.post(`${API_BASE}/posts/${postId}/likes/toggle`, null, { headers: authHeaders() })
+      setLiked(res.data.liked)
+      setLikeCount(res.data.likes_count)
+    } catch {
+      toast.error(t('post.likeFailed'))
+    } finally {
+      setLikeBusy(false)
     }
-    localStorage.setItem('likedPosts', JSON.stringify(likedPosts))
-    setLiked(prev => !prev)
   }
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!isLoggedIn) { requireAuth(); return }
-    if (!comment.trim()) return
+    if (!comment.trim() || sendingComment) return
 
-    const newComment = {
-      id: Date.now(),
-      author: currentUser.name || currentUser.username || 'User',
-      avatar: currentUser.profilePic || null,
-      text: comment.trim(),
-      date: new Date().toISOString(),
+    setSendingComment(true)
+    try {
+      const res = await axios.post(
+        `${API_BASE}/posts/${postId}/comments`,
+        { comment_text: comment.trim() },
+        { headers: authHeaders() }
+      )
+      setComments(prev => [res.data, ...prev])
+      setComment('')
+      toast.success(t('post.commentPosted'))
+    } catch {
+      toast.error(t('post.commentPostFailed'))
+    } finally {
+      setSendingComment(false)
     }
+  }
 
-    const stored = JSON.parse(localStorage.getItem('postComments') || '{}')
-    const updated = { ...stored, [postId]: [newComment, ...(stored[postId] || [])] }
-    localStorage.setItem('postComments', JSON.stringify(updated))
-
-    setComments(prev => [newComment, ...prev])
-    setComment('')
-    toast.success(t('post.commentPosted'))
+  const handleDeleteComment = async (commentId) => {
+    try {
+      await axios.delete(`${API_BASE}/posts/${postId}/comments/${commentId}`, { headers: authHeaders() })
+      setComments(prev => prev.filter(c => c.id !== commentId))
+      toast.success(t('post.commentDeleted'))
+    } catch {
+      toast.error(t('post.commentDeleteFailed'))
+    }
   }
 
   const handleCopy = () => {
@@ -224,7 +260,7 @@ export default function PostPage() {
             className="w-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-xl px-4 py-3 text-sm text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 resize-none focus:outline-none focus:ring-1 focus:ring-gray-300"
           />
           <div className="flex justify-end mt-3">
-            <button onClick={handleSend} className="px-6 py-2.5 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-sm font-medium rounded-full cursor-pointer hover:bg-gray-700 dark:hover:bg-white transition-colors">
+            <button onClick={handleSend} disabled={sendingComment} className="px-6 py-2.5 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-sm font-medium rounded-full cursor-pointer hover:bg-gray-700 dark:hover:bg-white transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
               {t('post.send')}
             </button>
           </div>
@@ -237,10 +273,19 @@ export default function PostPage() {
                   <div className="flex-1">
                     <div className="flex items-baseline gap-2">
                       <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{c.author}</p>
-                      <p className="text-xs text-gray-400 dark:text-gray-500">{formatDate(c.date)}</p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500">{formatDate(c.created_at)}</p>
                     </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-1 leading-relaxed">{c.text}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-1 leading-relaxed">{c.comment_text}</p>
                   </div>
+                  {isLoggedIn && currentUser.id === c.user_id && (
+                    <button
+                      onClick={() => handleDeleteComment(c.id)}
+                      title={t('post.deleteComment')}
+                      className="text-gray-300 dark:text-gray-600 hover:text-red-500 dark:hover:text-red-400 transition-colors cursor-pointer self-start"
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
