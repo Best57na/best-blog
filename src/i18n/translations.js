@@ -109,6 +109,12 @@ const en = {
     loginFailed: "Your password is incorrect or this email doesn't exist",
     loginFailedDesc: 'Please try another password or email',
     registrationFailed: 'Registration failed. Please try again.',
+    confirmPassword: 'Confirm password',
+    confirmPasswordPlaceholder: 'Confirm password',
+    confirmPasswordRequired: 'Please confirm your password',
+    passwordMismatch: 'Passwords do not match',
+    showPassword: 'Show password',
+    hidePassword: 'Hide password',
   },
   notFound: {
     title: '404',
