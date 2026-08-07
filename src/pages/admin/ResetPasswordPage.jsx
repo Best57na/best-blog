@@ -3,6 +3,7 @@ import { toast } from 'sonner'
 import axios from 'axios'
 import { X } from 'lucide-react'
 import { API_BASE } from '../../utils/api'
+import PasswordInput from '../../components/PasswordInput'
 
 function ConfirmDialog({ onConfirm, onCancel, isLoading }) {
   return (
@@ -116,17 +117,17 @@ export default function ResetPasswordPage() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Current password</label>
-            <input type="password" name="currentPassword" value={form.currentPassword} onChange={handleChange} className={inputClass('currentPassword')} />
+            <PasswordInput name="currentPassword" value={form.currentPassword} onChange={handleChange} className={inputClass('currentPassword')} />
             {errors.currentPassword && <p className="text-xs text-red-500 mt-1">{errors.currentPassword}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">New password</label>
-            <input type="password" name="newPassword" value={form.newPassword} onChange={handleChange} className={inputClass('newPassword')} />
+            <PasswordInput name="newPassword" value={form.newPassword} onChange={handleChange} className={inputClass('newPassword')} />
             {errors.newPassword && <p className="text-xs text-red-500 mt-1">{errors.newPassword}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Confirm new password</label>
-            <input type="password" name="confirmPassword" value={form.confirmPassword} onChange={handleChange} className={inputClass('confirmPassword')} />
+            <PasswordInput name="confirmPassword" value={form.confirmPassword} onChange={handleChange} className={inputClass('confirmPassword')} />
             {errors.confirmPassword && <p className="text-xs text-red-500 mt-1">{errors.confirmPassword}</p>}
           </div>
           <button
