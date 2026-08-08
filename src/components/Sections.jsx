@@ -6,6 +6,7 @@ import logo from '../assets/logo.svg'
 import logoDark from '../assets/logo-dark.svg'
 import { useTheme } from '../lib/theme'
 import { useLanguage } from '../lib/language'
+import { clearSession } from '../lib/sessionAuth'
 
 function buildDemoNotifications(t) {
   return [
@@ -239,7 +240,7 @@ export function NavBar() {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   const handleLogout = () => {
-    localStorage.removeItem('currentUser')
+    clearSession()
     navigate('/')
   }
 

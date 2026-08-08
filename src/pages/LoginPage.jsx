@@ -43,6 +43,8 @@ export default function LoginPage() {
       })
       const token = loginData.access_token
       localStorage.setItem('token', token)
+      if (loginData.refresh_token) localStorage.setItem('refresh_token', loginData.refresh_token)
+      if (loginData.expires_at) localStorage.setItem('expires_at', String(loginData.expires_at))
 
       // 2. Get user profile
       const { data: user } = await axios.get(`${API_BASE}/auth/get-user`, {
