@@ -498,7 +498,7 @@ export default function AITravelSuitePage() {
         toast.success(shareUrl)
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || t('aiSuite.generateErrorFallback'))
+      toast.error(error.response?.data?.message || error.response?.data?.error || t('aiSuite.generateErrorFallback'))
     } finally {
       setIsSaving(false)
     }
@@ -541,7 +541,7 @@ export default function AITravelSuitePage() {
         toast.success(t('aiSuite.planCopied'))
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || t('aiSuite.generateErrorFallback'))
+      toast.error(error.response?.data?.message || error.response?.data?.error || t('aiSuite.generateErrorFallback'))
     } finally {
       setIsSaving(false)
     }
