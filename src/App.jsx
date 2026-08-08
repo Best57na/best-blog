@@ -9,6 +9,7 @@ import SignUpPage from './pages/SignUpPage'
 import LoginPage from './pages/LoginPage'
 import NotFoundPage from './pages/NotFoundPage'
 import AITravelSuitePage from './pages/AITravelSuitePage'
+import TripSharePage from './pages/TripSharePage'
 import AccountLayout from './pages/AccountLayout'
 import AdminLayout from './pages/admin/AdminLayout'
 import ArticlesPage from './pages/admin/ArticlesPage'
@@ -41,6 +42,7 @@ function App() {
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/ai-travel-suite" element={<AITravelSuitePage />} />
+        <Route path="/trip/:shareToken" element={<TripSharePage />} />
         <Route element={<AccountLayout />}>
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
