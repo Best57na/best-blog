@@ -117,6 +117,17 @@ const en = {
     showPassword: 'Show password',
     hidePassword: 'Hide password',
   },
+  session: {
+    warningTitle: 'Your session is about to expire',
+    warningBody: 'You will be signed out in {time} unless you extend your session.',
+    extendButton: 'Extend session',
+    extending: 'Extending…',
+    dismissButton: 'Dismiss',
+    loginAgainTitle: 'Please log in again',
+    loginAgainBody: "We couldn't extend your session. Log in again to keep going.",
+    loginAgainButton: 'Log in again',
+    sessionExpiredToast: 'Your session expired. Please log in again.',
+  },
   notFound: {
     title: '404',
     message: "The page you are looking for doesn't exist or has been moved.",

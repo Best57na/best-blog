@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import { useTheme } from './lib/theme'
+import { SessionProvider } from './lib/session'
 import { NavBar, Footer } from './components/Sections'
 import { HeroSection } from './components/Sections'
 import ArticleSection from './components/ArticleSection'
@@ -36,30 +37,32 @@ function App() {
   const { theme } = useTheme()
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/post/:postId" element={<PostPage />} />
-        <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/ai-travel-suite" element={<AITravelSuitePage />} />
-        <Route path="/trip/:shareToken" element={<TripSharePage />} />
-        <Route element={<AccountLayout />}>
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
-        </Route>
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<Navigate to="/admin/articles" replace />} />
-          <Route path="articles" element={<ArticlesPage />} />
-          <Route path="articles/create" element={<CreateArticlePage />} />
-          <Route path="articles/:id/edit" element={<EditArticlePage />} />
-          <Route path="categories" element={<CategoriesPage />} />
-          <Route path="profile" element={<ProfilePage />} />
-          <Route path="notification" element={<NotificationPage />} />
-          <Route path="reset-password" element={<ResetPasswordPage />} />
-        </Route>
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-      <Toaster position="bottom-right" richColors theme={theme} />
+      <SessionProvider>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/post/:postId" element={<PostPage />} />
+          <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/ai-travel-suite" element={<AITravelSuitePage />} />
+          <Route path="/trip/:shareToken" element={<TripSharePage />} />
+          <Route element={<AccountLayout />}>
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
+          </Route>
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<Navigate to="/admin/articles" replace />} />
+            <Route path="articles" element={<ArticlesPage />} />
+            <Route path="articles/create" element={<CreateArticlePage />} />
+            <Route path="articles/:id/edit" element={<EditArticlePage />} />
+            <Route path="categories" element={<CategoriesPage />} />
+            <Route path="profile" element={<ProfilePage />} />
+            <Route path="notification" element={<NotificationPage />} />
+            <Route path="reset-password" element={<ResetPasswordPage />} />
+          </Route>
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+        <Toaster position="bottom-right" richColors theme={theme} />
+      </SessionProvider>
     </BrowserRouter>
   )
 }
