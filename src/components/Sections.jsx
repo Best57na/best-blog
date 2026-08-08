@@ -236,6 +236,7 @@ export function NavBar() {
   const { t } = useLanguage()
   const navigate = useNavigate()
   const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null')
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   const handleLogout = () => {
     localStorage.removeItem('currentUser')
@@ -244,8 +245,8 @@ export function NavBar() {
 
   return (
     <nav className="sticky top-0 z-40 px-4 md:px-8 py-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
-      <div className="flex items-center justify-between max-w-7xl mx-auto">
-        <Link to="/">
+      <div className="flex items-center justify-between max-w-[1600px] mx-auto">
+        <Link to="/" onClick={() => setMobileOpen(false)}>
           <img src={logo} alt={t('nav.logoAlt')} className="h-8 dark:hidden" />
           <img src={logoDark} alt={t('nav.logoAlt')} className="h-8 hidden dark:block" />
         </Link>
@@ -276,12 +277,63 @@ export function NavBar() {
           )}
         </div>
 
-        <button className="md:hidden p-2 text-gray-700 dark:text-gray-200 cursor-pointer">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
+        <button
+          onClick={() => setMobileOpen((v) => !v)}
+          aria-label="Menu"
+          aria-expanded={mobileOpen}
+          className="md:hidden p-2 text-gray-700 dark:text-gray-200 cursor-pointer"
+        >
+          {mobileOpen ? (
+            <X size={24} />
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          )}
         </button>
       </div>
+
+      {mobileOpen && (
+        <div className="md:hidden max-w-[1600px] mx-auto mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 flex flex-col gap-4">
+          <Link
+            to="/ai-travel-suite"
+            onClick={() => setMobileOpen(false)}
+            className="flex items-center gap-2 text-sm font-medium text-sky-600 dark:text-sky-400"
+          >
+            <Sparkles size={18} />
+            {t('nav.aiTravelSuiteTooltip')}
+          </Link>
+
+          <div className="flex items-center justify-between">
+            <LanguageSwitcher />
+            {currentUser && (
+              <div className="flex items-center gap-2">
+                <NotificationBell />
+                <UserMenu currentUser={currentUser} onLogout={handleLogout} />
+              </div>
+            )}
+          </div>
+
+          {!currentUser && (
+            <div className="flex items-center gap-3">
+              <Link
+                to="/login"
+                onClick={() => setMobileOpen(false)}
+                className="flex-1 text-center px-5 py-2 rounded-full border border-gray-300 dark:border-gray-600 text-sm font-medium text-gray-700 dark:text-gray-200"
+              >
+                {t('nav.login')}
+              </Link>
+              <Link
+                to="/signup"
+                onClick={() => setMobileOpen(false)}
+                className="flex-1 text-center px-5 py-2 rounded-full bg-gray-900 dark:bg-gray-100 text-sm font-medium text-white dark:text-gray-900"
+              >
+                {t('nav.signup')}
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
     </nav>
   )
 }
@@ -289,9 +341,9 @@ export function NavBar() {
 export function HeroSection() {
   const { t } = useLanguage()
   return (
-    <div className="p-4 md:p-6 max-w-7xl mx-auto">
+    <div className="p-4 md:p-6 max-w-[1600px] mx-auto">
       <section className="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-8 bg-stone-50 dark:bg-gray-800 rounded-3xl p-6 md:p-8 border border-gray-100 dark:border-gray-700">
-        <div className="flex-[1.2] flex flex-col items-center text-center">
+        <div className="flex-[1.2] flex flex-col items-center text-center md:self-center">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 leading-tight m-0">
             {t('hero.title')}
           </h1>
@@ -321,7 +373,7 @@ export function Footer() {
   const { t } = useLanguage()
   return (
     <footer className="px-4 md:px-8 py-4 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 mt-auto">
-      <div className="flex items-center justify-between max-w-7xl mx-auto">
+      <div className="flex items-center justify-between max-w-[1600px] mx-auto">
         <div className="flex items-center gap-3">
           <span className="text-sm text-gray-500 dark:text-gray-400">{t('footer.getInTouch')}</span>
           <div className="flex items-center gap-2">

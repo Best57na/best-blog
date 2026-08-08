@@ -178,7 +178,7 @@ export default function ArticleSection() {
   }
 
   return (
-    <div className="px-4 md:px-6 py-4 max-w-7xl mx-auto">
+    <div className="px-4 md:px-6 py-4 max-w-[1600px] mx-auto">
       <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">{t('article.latestArticles')}</h2>
 
       {/* Desktop: tabs + search */}
