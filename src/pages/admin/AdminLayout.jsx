@@ -1,6 +1,7 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import { FileText, Folder, User, Bell, Lock, ExternalLink, LogOut } from 'lucide-react'
+import { clearSession } from '../../lib/sessionAuth'
 
 function SidebarLink({ to, icon: Icon, children }) {
   return (
@@ -32,7 +33,7 @@ export default function AdminLayout() {
   if (!isAdmin) return null
 
   const handleLogout = () => {
-    localStorage.removeItem('currentUser')
+    clearSession()
     navigate('/login')
   }
 
