@@ -178,21 +178,21 @@ export default function ArticleSection() {
   }
 
   return (
-    <div className="px-4 md:px-6 py-4">
+    <div className="px-4 md:px-6 py-4 max-w-[1600px] mx-auto">
       <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">{t('article.latestArticles')}</h2>
 
       {/* Desktop: tabs + search */}
-      <div className="hidden md:flex items-center justify-between mb-6 bg-white dark:bg-gray-800 rounded-2xl px-4 py-2.5 border border-gray-100 dark:border-gray-700">
-        <div className="flex space-x-2">
+      <div className="hidden md:flex items-center justify-between mb-6 bg-white dark:bg-gray-800 rounded-full px-4 py-1.5 border border-gray-100 dark:border-gray-700">
+        <div className="flex flex-wrap gap-2">
           {[ALL_CATEGORY, ...categories].map((cat) => (
             <button
               key={cat}
               disabled={selectedCategory === cat}
               onClick={() => handleCategoryChange(cat)}
-              className={`px-4 py-3 transition-colors rounded-sm text-sm text-gray-600 dark:text-gray-300 font-medium ${
+              className={`px-4 py-1.5 transition-colors rounded-full text-sm font-medium ${
                 selectedCategory === cat
-                  ? 'bg-[#DAD6D1] dark:bg-gray-600 cursor-not-allowed'
-                  : 'cursor-pointer hover:bg-[#EFEEEB] dark:hover:bg-gray-700'
+                  ? 'bg-sky-500 text-white cursor-not-allowed'
+                  : 'text-gray-600 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700'
               }`}
             >
               {cat}
