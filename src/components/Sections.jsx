@@ -243,43 +243,45 @@ export function NavBar() {
   }
 
   return (
-    <nav className="flex items-center justify-between px-4 md:px-8 py-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
-      <Link to="/">
-        <img src={logo} alt={t('nav.logoAlt')} className="h-8 dark:hidden" />
-        <img src={logoDark} alt={t('nav.logoAlt')} className="h-8 hidden dark:block" />
-      </Link>
-
-      <div className="hidden md:flex items-center gap-3">
-        <Link
-          to="/ai-travel-suite"
-          title={t('nav.aiTravelSuiteTooltip')}
-          className="relative p-2 rounded-full text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-500/10 transition-colors cursor-pointer"
-        >
-          <Sparkles size={20} />
+    <nav className="sticky top-0 z-40 px-4 md:px-8 py-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+      <div className="flex items-center justify-between max-w-7xl mx-auto">
+        <Link to="/">
+          <img src={logo} alt={t('nav.logoAlt')} className="h-8 dark:hidden" />
+          <img src={logoDark} alt={t('nav.logoAlt')} className="h-8 hidden dark:block" />
         </Link>
-        <LanguageSwitcher />
-        {currentUser ? (
-          <>
-            <NotificationBell />
-            <UserMenu currentUser={currentUser} onLogout={handleLogout} />
-          </>
-        ) : (
-          <>
-            <Link to="/login" className="px-5 py-2 rounded-full border border-gray-300 dark:border-gray-600 text-sm font-medium text-gray-700 dark:text-gray-200 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
-              {t('nav.login')}
-            </Link>
-            <Link to="/signup" className="px-5 py-2 rounded-full bg-gray-900 dark:bg-gray-100 text-sm font-medium text-white dark:text-gray-900 cursor-pointer hover:bg-gray-700 dark:hover:bg-white">
-              {t('nav.signup')}
-            </Link>
-          </>
-        )}
-      </div>
 
-      <button className="md:hidden p-2 text-gray-700 dark:text-gray-200 cursor-pointer">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
+        <div className="hidden md:flex items-center gap-3">
+          <Link
+            to="/ai-travel-suite"
+            title={t('nav.aiTravelSuiteTooltip')}
+            className="relative p-2 rounded-full text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-500/10 transition-colors cursor-pointer"
+          >
+            <Sparkles size={20} />
+          </Link>
+          <LanguageSwitcher />
+          {currentUser ? (
+            <>
+              <NotificationBell />
+              <UserMenu currentUser={currentUser} onLogout={handleLogout} />
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="px-5 py-2 rounded-full border border-gray-300 dark:border-gray-600 text-sm font-medium text-gray-700 dark:text-gray-200 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
+                {t('nav.login')}
+              </Link>
+              <Link to="/signup" className="px-5 py-2 rounded-full bg-gray-900 dark:bg-gray-100 text-sm font-medium text-white dark:text-gray-900 cursor-pointer hover:bg-gray-700 dark:hover:bg-white">
+                {t('nav.signup')}
+              </Link>
+            </>
+          )}
+        </div>
+
+        <button className="md:hidden p-2 text-gray-700 dark:text-gray-200 cursor-pointer">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
     </nav>
   )
 }
@@ -287,20 +289,20 @@ export function NavBar() {
 export function HeroSection() {
   const { t } = useLanguage()
   return (
-    <div className="p-4 md:p-6">
-      <section className="flex flex-col md:flex-row items-center gap-6 md:gap-8 bg-stone-50 dark:bg-gray-800 rounded-3xl p-6 md:p-8 border border-gray-100 dark:border-gray-700">
-        <div className="flex-1 flex flex-col items-center text-center">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 leading-tight m-0">
+    <div className="p-4 md:p-6 max-w-7xl mx-auto">
+      <section className="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-8 bg-stone-50 dark:bg-gray-800 rounded-3xl p-6 md:p-8 border border-gray-100 dark:border-gray-700">
+        <div className="flex-[1.2] flex flex-col items-center text-center">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 leading-tight m-0">
             {t('hero.title')}
           </h1>
-          <p className="text-xs text-gray-400 dark:text-gray-500 mt-5 leading-relaxed max-w-xs md:max-w-48">
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-5 leading-relaxed max-w-xs">
             {t('hero.subtitle')}
           </p>
         </div>
         <div className="flex-1 w-full">
           <img src={myPic} alt="Thanakrit W." className="w-full h-64 md:h-80 object-cover object-top rounded-3xl" />
         </div>
-        <div className="flex-1 text-left w-full">
+        <div className="flex-[1.2] text-left w-full">
           <p className="text-xs text-gray-400 dark:text-gray-500 m-0">{t('hero.authorLabel')}</p>
           <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mt-1 mb-3">Thanakrit W.</h2>
           <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed m-0">
@@ -318,22 +320,24 @@ export function HeroSection() {
 export function Footer() {
   const { t } = useLanguage()
   return (
-    <footer className="flex items-center justify-between px-4 md:px-8 py-4 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 mt-auto">
-      <div className="flex items-center gap-3">
-        <span className="text-sm text-gray-500 dark:text-gray-400">{t('footer.getInTouch')}</span>
-        <div className="flex items-center gap-2">
-          <a href="#" className="p-1.5 rounded-full border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:border-gray-400 dark:hover:border-gray-500 transition-colors">
-            <Mail size={14} />
-          </a>
-          <a href="#" className="p-1.5 rounded-full border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:border-gray-400 dark:hover:border-gray-500 transition-colors">
-            <X size={14} />
-          </a>
-          <a href="#" className="p-1.5 rounded-full border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:border-gray-400 dark:hover:border-gray-500 transition-colors">
-            <Globe size={14} />
-          </a>
+    <footer className="px-4 md:px-8 py-4 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 mt-auto">
+      <div className="flex items-center justify-between max-w-7xl mx-auto">
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-gray-500 dark:text-gray-400">{t('footer.getInTouch')}</span>
+          <div className="flex items-center gap-2">
+            <a href="#" className="p-1.5 rounded-full border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:border-gray-400 dark:hover:border-gray-500 transition-colors">
+              <Mail size={14} />
+            </a>
+            <a href="#" className="p-1.5 rounded-full border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:border-gray-400 dark:hover:border-gray-500 transition-colors">
+              <X size={14} />
+            </a>
+            <a href="#" className="p-1.5 rounded-full border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:border-gray-400 dark:hover:border-gray-500 transition-colors">
+              <Globe size={14} />
+            </a>
+          </div>
         </div>
+        <Link to="/" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">{t('footer.homePage')}</Link>
       </div>
-      <Link to="/" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">{t('footer.homePage')}</Link>
     </footer>
   )
 }

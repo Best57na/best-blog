@@ -22,7 +22,7 @@ import './App.css'
 
 function HomePage() {
   return (
-    <div className="min-h-screen bg-stone-100 dark:bg-gray-900">
+    <div className="min-h-screen bg-stone-200 dark:bg-gray-900">
       <NavBar />
       <HeroSection />
       <ArticleSection />
